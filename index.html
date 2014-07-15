@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width">
+	<base href="../"/>
+	<title>x-playground</title>
+	<link rel="stylesheet" type="text/css" href="css/ui-layout.css"/>
+	<link rel="stylesheet" type="text/css" href="css/topcoat-desktop-dark.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/font-awesome/css/font-awesome.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+
+</head>
+<body style="height: 100%;" ng-app="PulsarCodeEditor" ng-controller="EditorController as editor" >
+<!-- MAIN MENU -->
+<nav class="editor-menu">
+	<ul class="editor-menu--ul">
+		<li><a class="topcoat-button--large--cta" ng-click="editor.run()"><i class="fa fa-rocket"></i></a></li>
+		<!--li><a class="topcoat-button--large--cta" ng-class="{'button--disabled':editor.iframeSource==''}" ng-click="editor.export()"><i class="fa fa-dot-circle-o"></i></a></li-->
+		<li><a class="topcoat-button--large--cta" ng-class="{'button--disabled':editor.iframeSource==''}" ng-href="{{editor.iframeSource}}" download="result.html"><i class="fa fa-sign-out"></i></a></li>
+		<li>
+			<select ng-change="list.change(myColor)" ng-model="myColor" ng-options="lib.label group by lib.group for lib in editor.libraries">
+				<option value="">-- choose color --</option>
+			</select>
+		</li>
+	</ul>
+</nav>
+
+<!-- LAYOUT -->
+<ui-layout style="top:40px;">
+	<ui-layout options="{ flow : 'column', dividerSize:'4px' }">
+
+		<!-- EDITORS -->
+		<div class="editor-container" ui-layout options="{ flow : 'row', dividerSize:'4px' }">
+			<!-- HTML -->
+			<div ng-controller="BodyPanelConfigController as bodyEditor" class="editor-container--panel">
+				<header>
+					<div class="topcoat-button no-events">body</div>
+					<div class="editor-panel--context" ng-click="bodyEditor.toggleConfig()">
+						<i class="fa fa-gear" ng-show="!bodyEditor.showPanel"></i>
+						<i class="fa fa-times" ng-show="bodyEditor.showPanel"></i>
+					</div>
+				</header>
+				<pre ng-model="editor.currentProject.body" ui-ace="{
+					onLoad:bodyEditor.htmlEditorLoaded,
+					theme:'twilight',
+					mode:'html'
+				}"></pre>
+				<div class="editor-panel--config editor-padding" ng-show="bodyEditor.showPanel">
+					<table cellpadding="5">
+						<tr>
+							<td><label class="topcoat-checkbox">
+								<input type="checkbox" ng-model="bodyEditor.currentProjectService.project.options.inlineFiles">
+								<div class="topcoat-checkbox__checkmark"></div>
+								Inline Elements
+							</label></td>
+							<td>Proxy:</td>
+							<td>
+								<input type="text" class="topcoat-text-input--large" ng-model="bodyEditor.currentProjectService.project.options.inlineProxyURL" ng-disabled="!bodyEditor.currentProjectService.project.options.inlineFiles">
+							</td>
+						</tr>
+					</table>
+
+				</div>
+			</div>
+
+			<!-- CSS -->
+			<div ng-controller="CssPanelConfigController as cssEditor" class="editor-container--panel">
+				<header>
+					<div class="topcoat-button no-events">{{cssEditor.currentProjectService.project.options.cssRenderMode}}</div>
+					<div class="editor-panel--context" ng-click="cssEditor.toggleConfig()">
+						<i class="fa fa-gear" ng-show="!cssEditor.showPanel"></i>
+						<i class="fa fa-times" ng-show="cssEditor.showPanel"></i>
+					</div>
+				</header>
+				<pre ng-model="editor.currentProject.css" ui-ace="{
+					onLoad:cssEditor.editorLoaded,
+					theme:'twilight',
+					mode:'css'
+				}"></pre>
+				<div class="editor-panel--config editor-padding" ng-show="cssEditor.showPanel">
+					<label class="editor-panel--config__divider">CSS Compiler:</label>
+					<label class="topcoat-radio-button">
+						<input ng-model="cssEditor.currentProjectService.project.options.cssRenderMode" type="radio" name="cssRendererType" value="css">
+						<div class="topcoat-radio-button__checkmark"></div>
+						Css
+					</label>
+					<label class="topcoat-radio-button">
+						<input ng-model="cssEditor.currentProjectService.project.options.cssRenderMode" type="radio" name="cssRendererType" value="stylus">
+						<div class="topcoat-radio-button__checkmark"></div>
+						Stylus
+					</label>
+					<label class="editor-panel--config__divider">External CSS files:</label>
+					<table>
+						<tr>
+							<td><input type="text" ng-model="newCssFile" class="topcoat-text-input--large" placeholder="add css file" value=""></td>
+							<td colspan="3"><a class="topcoat-button--cta" ng-click="cssEditor.addFile(editor.cssFiles, newCssFile)">add</a></td>
+						</tr>
+						<tr ng-repeat="(key,file) in editor.cssFiles">
+							<td><input type="text" class="topcoat-text-input--large" value="{{ file | pathFileName }}" readonly></td>
+							<td><a class="topcoat-button--cta" ng-click="cssEditor.removeFile(editor.cssFiles, key)"><i class="fa fa-flash"></i></a></td>
+							<td><a class="topcoat-button" ng-click="cssEditor.moveFileOrder(key,editor.cssFiles,-1)" ng-class="{'button--disabled':key==0}"><i class="fa fa-arrow-up"></i></a></td>
+							<td><a class="topcoat-button" ng-click="cssEditor.moveFileOrder(key,editor.cssFiles,1)" ng-class="{'button--disabled':key==editor.cssFiles.length-1}"><i class="fa fa-arrow-down"></i></a></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<!-- JS -->
+			<div ng-controller="JsPanelConfigController as jsEditor"  class="editor-container--panel">
+				<header>
+					<div class="topcoat-button no-events">{{jsEditor.currentProjectService.project.options.jsRenderMode}}</div>
+					<div class="editor-panel--context" ng-click="jsEditor.toggleConfig()">
+						<i class="fa fa-gear" ng-show="!jsEditor.showPanel"></i>
+						<i class="fa fa-times" ng-show="jsEditor.showPanel"></i>
+					</div>
+				</header>
+
+				<pre ng-model="editor.currentProject.js" ui-ace="{
+					onLoad:jsEditor.editorLoaded,
+					theme:'twilight',
+					mode:'javascript'
+				}"></pre>
+
+				<div class="editor-panel--config editor-padding" ng-show="jsEditor.showPanel">
+					<label class="editor-panel--config__divider">CSS Compiler:</label>
+					<label class="topcoat-radio-button">
+						<input ng-model="jsEditor.currentProjectService.project.options.jsRenderMode" type="radio" name="jsRendererType" value="javascript">
+						<div class="topcoat-radio-button__checkmark"></div>
+						Javascript
+					</label>
+					<label class="topcoat-radio-button">
+						<input ng-model="jsEditor.currentProjectService.project.options.jsRenderMode" type="radio" name="jsRendererType" value="typescript">
+						<div class="topcoat-radio-button__checkmark"></div>
+						Typescript
+					</label>
+					<label class="editor-panel--config__divider">External JS files:</label>
+					<table>
+						<tr>
+							<td><input type="text" ng-model="newJsFile" class="topcoat-text-input--large" placeholder="add css file" value=""></td>
+							<td colspan="3"><a class="topcoat-button--cta" ng-click="jsEditor.addFile(editor.jsFiles, newJsFile)">add</a></td>
+						</tr>
+						<tr ng-repeat="(key,file) in editor.jsFiles">
+							<td><input type="text" class="topcoat-text-input--large" value="{{file | pathFileName }}" readonly></td>
+							<td><a title="pepe" class="topcoat-button--cta" ng-click="jsEditor.removeFile(editor.jsFiles,key)"><i class="fa fa-flash"></i></a></td>
+							<td><a class="topcoat-button" ng-click="jsEditor.moveFileOrder(key,editor.jsFiles,-1)" ng-class="{'button--disabled':key==0}"><i class="fa fa-arrow-up"></i></a></td>
+							<td><a class="topcoat-button" ng-click="jsEditor.moveFileOrder(key,editor.jsFiles,1)" ng-class="{'button--disabled':key==editor.jsFiles.length-1}"><i class="fa fa-arrow-down"></i></a></td>
+
+						</tr>
+					</table>
+				</div>
+
+			</div>
+		</div>
+
+		<!-- PREVIEW -->
+		<div class="editor-preview" ng-controller="RenderDevicesController as renderDevices" >
+			<iframe ng-class="{'editor-preview--iframe':true,'desktop':renderDevices.responseModes.desktop==true,'tablet':renderDevices.responseModes.tablet==true,'mobile':renderDevices.responseModes.mobile==true}" ng-src="{{editor.iframeSource}}"></iframe>
+			<div class="editor-preview--responsive">
+				<a class="topcoat-button--large" ng-click="renderDevices.setResponsiveMode('full')"><i class="fa fa-expand"></i></a>
+				<a class="topcoat-button--large" ng-click="renderDevices.setResponsiveMode('desktop')"><i class="fa fa-desktop"></i></a>
+				<a class="topcoat-button--large" ng-click="renderDevices.setResponsiveMode('tablet')"><i class="fa fa-tablet"></i></a>
+				<a class="topcoat-button--large" ng-click="renderDevices.setResponsiveMode('mobile')"><i class="fa fa-mobile"></i></a>
+			</div>
+		</div>
+
+	</ui-layout>
+
+</ui-layout>
+
+
+
+
+
+<!-- Le javascript -->
+<script type="application/javascript" src="js/typescript.min.js"></script>
+<script type="application/javascript" src="js/stylus.min.js"></script>
+<script type="application/javascript" src="bower_components/ace-builds/src-min-noconflict/ace.js"></script>
+<script type="application/javascript" src="bower_components/ace-builds/src-min-noconflict/ext-language_tools.js"></script>
+<script type="application/javascript" src="bower_components/angular/angular.min.js"></script>
+<script type="application/javascript" src="bower_components/angular-ui-ace/ui-ace.js"></script>
+<script type="application/javascript" src="js/ui-layout.js"></script>
+<script type="application/javascript" src="js/app.js"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "x-playground",
+  "version": "0.0.0",
+  "main": "Gruntfile.js",
+  "author": "Pedro Casaubon xperiments@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "cors-anywhere": "^0.1.9",
+    "grunt": "^0.4.5",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-ts": "^1.11.3"
+  }
+}

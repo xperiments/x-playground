@@ -1,0 +1,1 @@
+module PreviewView { export var html =  '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	<style>{{css}}</style></head><body>{{body}}{{scripts}}<script>	{{js}}</script></body></html>' } 
