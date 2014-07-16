@@ -28,5 +28,6 @@
 /// <reference path="controllers/RenderDevicesController.ts" />
 //grunt-start
 /// <reference path="views/PreviewView.html.ts" />
+/// <reference path="App.ts" />
 //grunt-end
 /// <reference path="app.ts" />

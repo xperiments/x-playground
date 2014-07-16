@@ -1,4 +1,8 @@
-
+/**
+ * $di.ts
+ * http://www.xperiments.io/posts/typescript-angularjs-best-practices/
+ * Created by xperiments on 15/07/14.
+ */
 module $di
 {
 	/* service */
@@ -87,9 +91,10 @@ module $di
 		// bypassing not nulled properties
 		Object.keys(Class).forEach((key:string)=> { (Class[key] === null) && ( Class[key] = key ); })
 	}
-	export function checkDI( Class:any ):void
+	export function checkDI( Class:Function ):void
 	{
 		if( !__dev_mode ) return; // Do nothing in production!!
+
 		// do a dity check here :-(
 		var className:string = getClassName(Class);
 		if ( annotate(Class).toString().toLowerCase()!=Class.$inject.toString().toLowerCase() )
@@ -101,24 +106,23 @@ module $di
 		console.log('$di class checked: '+className)
 	};
 
-	// private methods
+	/** INTERNAL **/
 	function getClassName(Class:any):string
 	{
 		return Class.toString().match(/function (.*)\(/)[1];
-	};
-
+	}
 
 	//http://taoofcode.net/studying-the-angular-injector-annotate/
-	var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
-	var FN_ARG_SPLIT = /,/;
-	var FN_ARG = /^\s*(_?)(\S+?)\1\s*$/;
-	var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+	var FN_ARGS:RegExp = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+	var FN_ARG_SPLIT:RegExp = /,/;
+	var FN_ARG:RegExp = /^\s*(_?)(\S+?)\1\s*$/;
+	var STRIP_COMMENTS:RegExp = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 
-	function annotate(fn):string[]
+	function annotate(fn:Function):string[]
 	{
-		var $inject,
-			fnText,
-			argDecl
+		var $inject:string[];
+		var fnText:string;
+		var argDecl:any[];
 
 		if (typeof fn == 'function') {
 
@@ -132,7 +136,6 @@ module $di
 					});
 				});
 			}
-
 		}
 		return $inject;
 	}

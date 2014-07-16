@@ -97,7 +97,6 @@ var $di;
     function getClassName(Class) {
         return Class.toString().match(/function (.*)\(/)[1];
     }
-    ;
 
     var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
     var FN_ARG_SPLIT = /,/;
@@ -105,7 +104,9 @@ var $di;
     var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 
     function annotate(fn) {
-        var $inject, fnText, argDecl;
+        var $inject;
+        var fnText;
+        var argDecl;
 
         if (typeof fn == 'function') {
             $inject = [];
