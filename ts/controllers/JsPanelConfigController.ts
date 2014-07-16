@@ -6,7 +6,10 @@ module io.xperiments.csseditor.controllers
 	export class JsPanelConfigController extends PanelConfigController
 	{
 		renderMode:string = "javascript";
-		static $inject = ["$rootScope","CurrentProjectService"];
+		static $inject = [
+			$di.$ng.$rootScope,
+			$di.$app.CurrentProjectService
+		];
 		constructor( $rootScope:ng.IRootScopeService, private currentProjectService:CurrentProjectService  )
 		{
 			super( $rootScope );

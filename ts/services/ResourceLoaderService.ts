@@ -15,7 +15,10 @@ module io.xperiments.csseditor.services
 	}
 	export class ResourceLoaderService
 	{
-		static $inject = ["$http","$q"];
+		static $inject = [
+			$di.$ng.$http,
+			$di.$ng.$q
+		];
 		constructor(private $http:ng.IHttpService,private $q:ng.IQService )
 		{
 

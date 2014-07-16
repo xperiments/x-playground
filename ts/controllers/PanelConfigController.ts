@@ -10,7 +10,9 @@ module io.xperiments.csseditor.controllers
 		public editor:AceAjax.Editor;
 		public showPanel:boolean = false;
 		public renderMode:string;
-		static $inject=["$rootScope"];
+		static $inject = [
+			$di.$ng.$rootScope
+		];
 		constructor(private $rootScope:ng.IRootScopeService)
 		{
 

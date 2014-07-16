@@ -24,7 +24,11 @@ module io.xperiments.csseditor.services
 
 	export class HTMLRendererService
 	{
-		static $inject = ["$q","$interpolate","ResourceLoaderService"];
+		static $inject = [
+			 $di.$ng.$q
+			,$di.$ng.$interpolate
+			,$di.$app.ResourceLoaderService
+		];
 		private iframeTemplateRenderer:ng.IInterpolationFunction;
 		constructor(
 			private $q:ng.IQService

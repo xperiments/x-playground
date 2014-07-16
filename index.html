@@ -18,14 +18,9 @@
 		<li><a class="topcoat-button--large--cta" ng-click="editor.run()"><i class="fa fa-rocket"></i></a></li>
 		<!--li><a class="topcoat-button--large--cta" ng-class="{'button--disabled':editor.iframeSource==''}" ng-click="editor.export()"><i class="fa fa-dot-circle-o"></i></a></li-->
 		<li><a class="topcoat-button--large--cta" ng-class="{'button--disabled':editor.iframeSource==''}" ng-href="{{editor.iframeSource}}" download="result.html"><i class="fa fa-sign-out"></i></a></li>
-		<li>
-			<select ng-change="list.change(myColor)" ng-model="myColor" ng-options="lib.label group by lib.group for lib in editor.libraries">
-				<option value="">-- choose color --</option>
-			</select>
-		</li>
 	</ul>
 </nav>
-
+<label class="editor-panel--config__divider">x-playground options</label>
 <!-- LAYOUT -->
 <ui-layout style="top:40px;">
 	<ui-layout options="{ flow : 'column', dividerSize:'4px' }">
@@ -47,6 +42,7 @@
 					mode:'html'
 				}"></pre>
 				<div class="editor-panel--config editor-padding" ng-show="bodyEditor.showPanel">
+					<label class="editor-panel--config__divider">x-playground options</label>
 					<table cellpadding="5">
 						<tr>
 							<td><label class="topcoat-checkbox">
@@ -60,7 +56,14 @@
 							</td>
 						</tr>
 					</table>
-
+					<label class="editor-panel--config__divider">Select framework</label>
+					<select class="editor-select" ng-change="list.change(myColor)" ng-model="myColor" ng-options="lib.label group by lib.group for lib in editor.libraries">
+						<option value="">-- choose framework --</option>
+					</select>
+					<label class="editor-panel--config__divider">Script loading</label>
+					<select class="editor-select" ng-change="list.change(myColor)" ng-model="myColor" ng-options="lib.label group by lib.group for lib in editor.libraries">
+						<option value="">-- choose framework --</option>
+					</select>
 				</div>
 			</div>
 
@@ -94,13 +97,13 @@
 					<table>
 						<tr>
 							<td><input type="text" ng-model="newCssFile" class="topcoat-text-input--large" placeholder="add css file" value=""></td>
-							<td colspan="3"><a class="topcoat-button--cta" ng-click="cssEditor.addFile(editor.cssFiles, newCssFile)">add</a></td>
+							<td colspan="3"><a class="topcoat-button--cta" ng-click="cssEditor.addFile(cssEditor.currentProjectService.project.cssFiles, newCssFile)">add</a></td>
 						</tr>
-						<tr ng-repeat="(key,file) in editor.cssFiles">
+						<tr ng-repeat="(key,file) in cssEditor.currentProjectService.project.cssFiles">
 							<td><input type="text" class="topcoat-text-input--large" value="{{ file | pathFileName }}" readonly></td>
-							<td><a class="topcoat-button--cta" ng-click="cssEditor.removeFile(editor.cssFiles, key)"><i class="fa fa-flash"></i></a></td>
-							<td><a class="topcoat-button" ng-click="cssEditor.moveFileOrder(key,editor.cssFiles,-1)" ng-class="{'button--disabled':key==0}"><i class="fa fa-arrow-up"></i></a></td>
-							<td><a class="topcoat-button" ng-click="cssEditor.moveFileOrder(key,editor.cssFiles,1)" ng-class="{'button--disabled':key==editor.cssFiles.length-1}"><i class="fa fa-arrow-down"></i></a></td>
+							<td><a class="topcoat-button--cta" ng-click="cssEditor.removeFile(cssEditor.currentProjectService.project.cssFiles, key)"><i class="fa fa-flash"></i></a></td>
+							<td><a class="topcoat-button" ng-click="cssEditor.moveFileOrder(key,cssEditor.currentProjectService.project.cssFiles,-1)" ng-class="{'button--disabled':key==0}"><i class="fa fa-arrow-up"></i></a></td>
+							<td><a class="topcoat-button" ng-click="cssEditor.moveFileOrder(key,cssEditor.currentProjectService.project.cssFiles,1)" ng-class="{'button--disabled':key==cssEditor.currentProjectService.project.cssFiles.length-1}"><i class="fa fa-arrow-down"></i></a></td>
 						</tr>
 					</table>
 				</div>
@@ -138,13 +141,13 @@
 					<table>
 						<tr>
 							<td><input type="text" ng-model="newJsFile" class="topcoat-text-input--large" placeholder="add css file" value=""></td>
-							<td colspan="3"><a class="topcoat-button--cta" ng-click="jsEditor.addFile(editor.jsFiles, newJsFile)">add</a></td>
+							<td colspan="3"><a class="topcoat-button--cta" ng-click="jsEditor.addFile(jsEditor.currentProjectService.project.jsFiles, newJsFile)">add</a></td>
 						</tr>
-						<tr ng-repeat="(key,file) in editor.jsFiles">
+						<tr ng-repeat="(key,file) in jsEditor.currentProjectService.project.jsFiles">
 							<td><input type="text" class="topcoat-text-input--large" value="{{file | pathFileName }}" readonly></td>
-							<td><a title="pepe" class="topcoat-button--cta" ng-click="jsEditor.removeFile(editor.jsFiles,key)"><i class="fa fa-flash"></i></a></td>
-							<td><a class="topcoat-button" ng-click="jsEditor.moveFileOrder(key,editor.jsFiles,-1)" ng-class="{'button--disabled':key==0}"><i class="fa fa-arrow-up"></i></a></td>
-							<td><a class="topcoat-button" ng-click="jsEditor.moveFileOrder(key,editor.jsFiles,1)" ng-class="{'button--disabled':key==editor.jsFiles.length-1}"><i class="fa fa-arrow-down"></i></a></td>
+							<td><a title="pepe" class="topcoat-button--cta" ng-click="jsEditor.removeFile(jsEditor.currentProjectService.project.jsFiles,key)"><i class="fa fa-flash"></i></a></td>
+							<td><a class="topcoat-button" ng-click="jsEditor.moveFileOrder(key,jsEditor.currentProjectService.project.jsFiles,-1)" ng-class="{'button--disabled':key==0}"><i class="fa fa-arrow-up"></i></a></td>
+							<td><a class="topcoat-button" ng-click="jsEditor.moveFileOrder(key,jsEditor.currentProjectService.project.jsFiles,1)" ng-class="{'button--disabled':key==jsEditor.currentProjectService.project.jsFiles.length-1}"><i class="fa fa-arrow-down"></i></a></td>
 
 						</tr>
 					</table>

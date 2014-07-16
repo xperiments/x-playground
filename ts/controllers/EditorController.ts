@@ -4,34 +4,37 @@ module io.xperiments.csseditor.controllers
 	import HTMLRendererService = io.xperiments.csseditor.services.HTMLRendererService;
 	import CurrentProjectService = io.xperiments.csseditor.services.CurrentProjectService;
 	import LibrariesService = io.xperiments.csseditor.services.LibrariesService;
-	import ILibrary = io.xperiments.csseditor.services.ILibrary;
+	import ILibrary = io.xperiments.csseditor.services.IFramework;
 	import PlaygroundProject = io.xperiments.csseditor.models.PlaygroundProject;
 	import PlaygroundProjectOptions = io.xperiments.csseditor.models.PlaygroundProjectOptions;
 
 	export class EditorController
 	{
 
-
 		public iframeSource:string ="";
 		public compiledResult:string ="";
 
-
-
-		public renderers:{ css:string; js:string } = { css:'css',js:'javascript' };
-		public cssFiles:string[] = [];
-		public jsFiles:string[] = [];
 		public currentProject:PlaygroundProject;
 		public libraries:ILibrary[];
-		static $inject=["$scope","$rootScope","$sce","$interpolate","$q","HTMLRendererService","CurrentProjectService","LibrariesService"];
+		static $inject=[
+			$di.$ng.$rootScope,
+			$di.$ng.$sce,
+			$di.$ng.$interpolate,
+			$di.$ng.$q,
+			$di.$app.HTMLRendererService,
+			$di.$app.CurrentProjectService,
+			$di.$app.LibrariesService,
+			$di.$app.ConfigService,
+		];
 		constructor(
-			 private $scope
-			,private $rootScope:ng.IRootScopeService
+			 private $rootScope:ng.IRootScopeService
 			,private $sce:ng.ISCEService
 			,private $interpolate:ng.IInterpolateService
 			,private $q:ng.IQService
 			,private HTMLRendererService:HTMLRendererService
 			,private currentProjectService:CurrentProjectService
 			,private librariesService:LibrariesService
+			,private ConfigService:LibrariesService
 		)
 		{
 			this.currentProject = currentProjectService.project;
@@ -41,7 +44,6 @@ module io.xperiments.csseditor.controllers
 		run()
 		{
 			this.HTMLRendererService.render( this.currentProject ).then(( result:string )=>{
-
 				this.$rootScope.$emit('uiLayout.update');
 				this.compiledResult = 'data:text/html;base64,'+btoa( result );
 				this.iframeSource = this.$sce.trustAsResourceUrl( this.compiledResult );
@@ -51,6 +53,7 @@ module io.xperiments.csseditor.controllers
 
 
 	}
+	$di.checkDI( EditorController );
 }
 
 

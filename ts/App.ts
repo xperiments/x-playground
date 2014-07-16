@@ -22,6 +22,7 @@ app.filter(  { "pathFileName":()=>{
 }} );
 
 // ADD DATA URL SUPPORT IN GENERATED DOWNLOAD LINKS
+// https://docs.angularjs.org/api/ng/provider/$compileProvider
 app.config( [
 	'$compileProvider',
 	function( $compileProvider )

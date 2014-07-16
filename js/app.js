@@ -1,3 +1,143 @@
+var $di;
+(function ($di) {
+    var $ng = (function () {
+        function $ng() {
+        }
+        $ng.$anchorScroll = null;
+        $ng.$animate = null;
+        $ng.$cacheFactory = null;
+        $ng.$compile = null;
+        $ng.$controller = null;
+        $ng.$document = null;
+        $ng.$filter = null;
+        $ng.$http = null;
+        $ng.$interpolate = null;
+        $ng.$locale = null;
+        $ng.$location = null;
+        $ng.$parse = null;
+        $ng.$q = null;
+        $ng.$rootElement = null;
+        $ng.$rootScope = null;
+        $ng.$sce = null;
+        $ng.$sceDelegate = null;
+        $ng.$templateCache = null;
+        $ng.$window = null;
+        $ng.$exceptionHandler = null;
+        $ng.$httpBackend = null;
+        $ng.$interval = null;
+        $ng.$log = null;
+        $ng.$timeout = null;
+        $ng.$resource = null;
+        $ng.$sanitize = null;
+        $ng.$swipe = null;
+
+        $ng.$animateProvider = null;
+        $ng.$compileProvider = null;
+        $ng.$controllerProvider = null;
+        $ng.$filterProvider = null;
+        $ng.$httpProvider = null;
+        $ng.$interpolateProvider = null;
+        $ng.$locationProvider = null;
+        $ng.$logProvider = null;
+        $ng.$parseProvider = null;
+        $ng.$rootScopeProvider = null;
+        $ng.$sceDelegateProvider = null;
+        $ng.$sceProvider = null;
+        $ng.$exceptionHandlerProvider = null;
+        $ng.$routeProvider = null;
+
+        $ng.$injector = null;
+        $ng.$provide = null;
+
+        $ng.$cookieStore = null;
+        $ng.$cookies = null;
+
+        $ng.$route = null;
+        $ng.$routeParams = null;
+
+        $ng.$scope = null;
+        $ng.$element = null;
+        $ng.$attrs = null;
+        $ng.$transclude = null;
+        return $ng;
+    })();
+    $di.$ng = $ng;
+    (function ($ng) {
+        initStaticClass($ng);
+    })($di.$ng || ($di.$ng = {}));
+    var $ng = $di.$ng;
+
+    var __dev_mode = false;
+    function setDevelopment(devMode) {
+        __dev_mode = devMode;
+    }
+    $di.setDevelopment = setDevelopment;
+
+    function initStaticClass(Class) {
+        Object.keys(Class).forEach(function (key) {
+            (Class[key] === null) && (Class[key] = key);
+        });
+    }
+    $di.initStaticClass = initStaticClass;
+    function checkDI(Class) {
+        if (!__dev_mode)
+            return;
+
+        var className = getClassName(Class);
+        if (annotate(Class).toString().toLowerCase() != Class.$inject.toString().toLowerCase()) {
+            var err = ("\n\nPlease check the injection in class $className$\n\n").replace('$className$', className);
+            throw new Error(err);
+            return;
+        }
+        console.log('$di class checked: ' + className);
+    }
+    $di.checkDI = checkDI;
+    ;
+
+    function getClassName(Class) {
+        return Class.toString().match(/function (.*)\(/)[1];
+    }
+    ;
+
+    var FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+    var FN_ARG_SPLIT = /,/;
+    var FN_ARG = /^\s*(_?)(\S+?)\1\s*$/;
+    var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+
+    function annotate(fn) {
+        var $inject, fnText, argDecl;
+
+        if (typeof fn == 'function') {
+            $inject = [];
+            if (fn.length) {
+                fnText = fn.toString().replace(STRIP_COMMENTS, '');
+                argDecl = fnText.match(FN_ARGS);
+                argDecl[1].split(FN_ARG_SPLIT).forEach(function (arg) {
+                    arg.replace(FN_ARG, function (all, underscore, name) {
+                        $inject.push(name);
+                    });
+                });
+            }
+        }
+        return $inject;
+    }
+})($di || ($di = {}));
+$di.setDevelopment(true);
+var $di;
+(function ($di) {
+    var $app = (function () {
+        function $app() {
+        }
+        $app.CurrentProjectService = null;
+        $app.HTMLRendererService = null;
+        $app.LibrariesService = null;
+        $app.ConfigService = null;
+        $app.ResourceLoaderService = null;
+        return $app;
+    })();
+    $di.$app = $app;
+    $di.initStaticClass($app);
+})($di || ($di = {}));
 var io;
 (function (io) {
     (function (xperiments) {
@@ -271,262 +411,6 @@ var io;
     })(io.xperiments || (io.xperiments = {}));
     var xperiments = io.xperiments;
 })(io || (io = {}));
-var PreviewView;
-(function (PreviewView) {
-    PreviewView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	<style>{{css}}</style></head><body>{{body}}{{scripts}}<script>	{{js}}</script></body></html>';
-})(PreviewView || (PreviewView = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (services) {
-                var ResourceLoaderService = (function () {
-                    function ResourceLoaderService($http, $q) {
-                        this.$http = $http;
-                        this.$q = $q;
-                    }
-                    ResourceLoaderService.prototype.load = function (urls, proxyURL) {
-                        var _this = this;
-                        var promises = [];
-                        urls.forEach(function (url) {
-                            console.log(url);
-                            promises.push(_this.$http.get(proxyURL + url));
-                        });
-
-                        return this.$q.all(promises).then(function (results) {
-                            var fileMaps = {};
-                            results.forEach(function (fileData) {
-                                fileMaps[fileData.config.url] = btoa(fileData.data);
-                            });
-                            return fileMaps;
-                        });
-                    };
-                    ResourceLoaderService.$inject = ["$http", "$q"];
-                    return ResourceLoaderService;
-                })();
-                services.ResourceLoaderService = ResourceLoaderService;
-            })(csseditor.services || (csseditor.services = {}));
-            var services = csseditor.services;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (controllers) {
-                var EditorController = (function () {
-                    function EditorController($scope, $rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, librariesService) {
-                        this.$scope = $scope;
-                        this.$rootScope = $rootScope;
-                        this.$sce = $sce;
-                        this.$interpolate = $interpolate;
-                        this.$q = $q;
-                        this.HTMLRendererService = HTMLRendererService;
-                        this.currentProjectService = currentProjectService;
-                        this.librariesService = librariesService;
-                        this.iframeSource = "";
-                        this.compiledResult = "";
-                        this.renderers = { css: 'css', js: 'javascript' };
-                        this.cssFiles = [];
-                        this.jsFiles = [];
-                        this.currentProject = currentProjectService.project;
-                        this.libraries = librariesService.libraries;
-                    }
-                    EditorController.prototype.run = function () {
-                        var _this = this;
-                        this.HTMLRendererService.render(this.currentProject).then(function (result) {
-                            _this.$rootScope.$emit('uiLayout.update');
-                            _this.compiledResult = 'data:text/html;base64,' + btoa(result);
-                            _this.iframeSource = _this.$sce.trustAsResourceUrl(_this.compiledResult);
-                        });
-                    };
-                    EditorController.$inject = ["$scope", "$rootScope", "$sce", "$interpolate", "$q", "HTMLRendererService", "CurrentProjectService", "LibrariesService"];
-                    return EditorController;
-                })();
-                controllers.EditorController = EditorController;
-            })(csseditor.controllers || (csseditor.controllers = {}));
-            var controllers = csseditor.controllers;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (controllers) {
-                var PanelConfigController = (function () {
-                    function PanelConfigController($rootScope) {
-                        var _this = this;
-                        this.$rootScope = $rootScope;
-                        this.showPanel = false;
-                        this.editorLoaded = function (editor) {
-                            _this._editorLoaded(editor);
-                        };
-                        this._editorLoaded = function (editor) {
-                            if (!_this.editor) {
-                                _this.editor = editor;
-                                editor['setOptions']({
-                                    enableBasicAutocompletion: true,
-                                    enableSnippets: true,
-                                    enableLiveAutocompletion: true
-                                });
-                                _this.$rootScope.$on('ui-layout.resize', function () {
-                                    editor.resize();
-                                });
-                                editor.resize();
-                            }
-                        };
-                    }
-                    PanelConfigController.prototype.toggleConfig = function () {
-                        this.showPanel = !this.showPanel;
-                        !this.showPanel && this.updateEditorRenderer();
-                    };
-
-                    PanelConfigController.prototype.moveFileOrder = function (key, table, dir) {
-                        if ((dir == 1 && key + 1 == table.length + 1) || (dir == -1 && key - 1 < 0))
-                            return;
-                        var source = table[key];
-                        var swap = table[key + dir];
-                        table[key] = swap;
-                        table[key + dir] = source;
-                    };
-                    PanelConfigController.prototype.removeFile = function (table, id) {
-                        table.splice(id, 1);
-                    };
-                    PanelConfigController.prototype.addFile = function (table, file) {
-                        if (typeof file === "undefined") { file = ""; }
-                        if (file != "" && table.indexOf(file) == -1) {
-                            table.push(file);
-                        }
-                    };
-                    PanelConfigController.prototype.updateEditorRenderer = function () {
-                    };
-                    PanelConfigController.$inject = ["$rootScope"];
-                    return PanelConfigController;
-                })();
-                controllers.PanelConfigController = PanelConfigController;
-            })(csseditor.controllers || (csseditor.controllers = {}));
-            var controllers = csseditor.controllers;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (controllers) {
-                var BodyPanelConfigController = (function (_super) {
-                    __extends(BodyPanelConfigController, _super);
-                    function BodyPanelConfigController($rootScope, currentProjectService) {
-                        _super.call(this, $rootScope);
-                        this.currentProjectService = currentProjectService;
-                    }
-                    BodyPanelConfigController.prototype.toggleConfig = function () {
-                        this.showPanel = !this.showPanel;
-                    };
-                    BodyPanelConfigController.$inject = ["$rootScope", "CurrentProjectService"];
-                    return BodyPanelConfigController;
-                })(controllers.PanelConfigController);
-                controllers.BodyPanelConfigController = BodyPanelConfigController;
-            })(csseditor.controllers || (csseditor.controllers = {}));
-            var controllers = csseditor.controllers;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (controllers) {
-                var CssPanelConfigController = (function (_super) {
-                    __extends(CssPanelConfigController, _super);
-                    function CssPanelConfigController($rootScope, currentProjectService) {
-                        _super.call(this, $rootScope);
-                        this.currentProjectService = currentProjectService;
-                        this.renderMode = "css";
-                    }
-                    CssPanelConfigController.prototype.updateEditorRenderer = function () {
-                        this.editor.getSession().setMode(this.currentProjectService.project.options.cssRenderMode == "css" ? "ace/mode/css" : "ace/mode/stylus");
-                    };
-                    CssPanelConfigController.$inject = ["$rootScope", "CurrentProjectService"];
-                    return CssPanelConfigController;
-                })(controllers.PanelConfigController);
-                controllers.CssPanelConfigController = CssPanelConfigController;
-            })(csseditor.controllers || (csseditor.controllers = {}));
-            var controllers = csseditor.controllers;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (controllers) {
-                var JsPanelConfigController = (function (_super) {
-                    __extends(JsPanelConfigController, _super);
-                    function JsPanelConfigController($rootScope, currentProjectService) {
-                        _super.call(this, $rootScope);
-                        this.currentProjectService = currentProjectService;
-                        this.renderMode = "javascript";
-                    }
-                    JsPanelConfigController.prototype.updateEditorRenderer = function () {
-                        this.editor.getSession().setMode(this.currentProjectService.project.options.jsRenderMode == "javascript" ? "ace/mode/javascript" : "ace/mode/typescript");
-                    };
-                    JsPanelConfigController.$inject = ["$rootScope", "CurrentProjectService"];
-                    return JsPanelConfigController;
-                })(controllers.PanelConfigController);
-                controllers.JsPanelConfigController = JsPanelConfigController;
-            })(csseditor.controllers || (csseditor.controllers = {}));
-            var controllers = csseditor.controllers;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (controllers) {
-                var RenderDevicesController = (function () {
-                    function RenderDevicesController($rootScope, currentProjectService) {
-                        this.currentProjectService = currentProjectService;
-                        this.responseModes = {
-                            "full": true,
-                            "desktop": false,
-                            "tablet": false,
-                            "mobile": false
-                        };
-                    }
-                    RenderDevicesController.prototype.setResponsiveMode = function (mode) {
-                        var _this = this;
-                        Object.keys(this.responseModes).forEach(function (key) {
-                            _this.responseModes[key] = false;
-                        });
-                        this.responseModes[mode] = true;
-                    };
-                    RenderDevicesController.$inject = ["$rootScope", "CurrentProjectService"];
-                    return RenderDevicesController;
-                })();
-                controllers.RenderDevicesController = RenderDevicesController;
-            })(csseditor.controllers || (csseditor.controllers = {}));
-            var controllers = csseditor.controllers;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
 var io;
 (function (io) {
     (function (xperiments) {
@@ -590,6 +474,82 @@ var io;
                 models.RenderDevices = RenderDevices;
             })(csseditor.models || (csseditor.models = {}));
             var models = csseditor.models;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var PreviewView;
+(function (PreviewView) {
+    PreviewView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	<style>{{css}}</style></head><body>{{body}}{{scripts}}<script>	{{js}}</script></body></html>';
+})(PreviewView || (PreviewView = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (services) {
+                var ResourceLoaderService = (function () {
+                    function ResourceLoaderService($http, $q) {
+                        this.$http = $http;
+                        this.$q = $q;
+                    }
+                    ResourceLoaderService.prototype.load = function (urls, proxyURL) {
+                        var _this = this;
+                        var promises = [];
+                        urls.forEach(function (url) {
+                            console.log(url);
+                            promises.push(_this.$http.get(proxyURL + url));
+                        });
+
+                        return this.$q.all(promises).then(function (results) {
+                            var fileMaps = {};
+                            results.forEach(function (fileData) {
+                                fileMaps[fileData.config.url] = btoa(fileData.data);
+                            });
+                            return fileMaps;
+                        });
+                    };
+                    ResourceLoaderService.$inject = [
+                        $di.$ng.$http,
+                        $di.$ng.$q
+                    ];
+                    return ResourceLoaderService;
+                })();
+                services.ResourceLoaderService = ResourceLoaderService;
+            })(csseditor.services || (csseditor.services = {}));
+            var services = csseditor.services;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (services) {
+                var ConfigService = (function () {
+                    function ConfigService($http, $q) {
+                        this.$http = $http;
+                        this.$q = $q;
+                    }
+                    ConfigService.prototype.load = function () {
+                        var _this = this;
+                        return this.$http.get('/config/config.js').then(function (data) {
+                            _this.frameworks = data.data.frameworks;
+                            _this.js_wrap_map = data.data.js_wrap_map;
+                            return data.data;
+                        });
+                    };
+                    ConfigService.$inject = [
+                        $di.$ng.$http,
+                        $di.$ng.$q
+                    ];
+                    return ConfigService;
+                })();
+                services.ConfigService = ConfigService;
+            })(csseditor.services || (csseditor.services = {}));
+            var services = csseditor.services;
         })(xperiments.csseditor || (xperiments.csseditor = {}));
         var csseditor = xperiments.csseditor;
     })(io.xperiments || (io.xperiments = {}));
@@ -727,7 +687,11 @@ var io;
                         };
                         return this.iframeTemplateRenderer(htmlContext);
                     };
-                    HTMLRendererService.$inject = ["$q", "$interpolate", "ResourceLoaderService"];
+                    HTMLRendererService.$inject = [
+                        $di.$ng.$q,
+                        $di.$ng.$interpolate,
+                        $di.$app.ResourceLoaderService
+                    ];
                     return HTMLRendererService;
                 })();
                 services.HTMLRendererService = HTMLRendererService;
@@ -1399,6 +1363,242 @@ var io;
                 services.LibrariesService = LibrariesService;
             })(csseditor.services || (csseditor.services = {}));
             var services = csseditor.services;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (controllers) {
+                var EditorController = (function () {
+                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, librariesService, ConfigService) {
+                        this.$rootScope = $rootScope;
+                        this.$sce = $sce;
+                        this.$interpolate = $interpolate;
+                        this.$q = $q;
+                        this.HTMLRendererService = HTMLRendererService;
+                        this.currentProjectService = currentProjectService;
+                        this.librariesService = librariesService;
+                        this.ConfigService = ConfigService;
+                        this.iframeSource = "";
+                        this.compiledResult = "";
+                        this.currentProject = currentProjectService.project;
+                        this.libraries = librariesService.libraries;
+                    }
+                    EditorController.prototype.run = function () {
+                        var _this = this;
+                        this.HTMLRendererService.render(this.currentProject).then(function (result) {
+                            _this.$rootScope.$emit('uiLayout.update');
+                            _this.compiledResult = 'data:text/html;base64,' + btoa(result);
+                            _this.iframeSource = _this.$sce.trustAsResourceUrl(_this.compiledResult);
+                        });
+                    };
+                    EditorController.$inject = [
+                        $di.$ng.$rootScope,
+                        $di.$ng.$sce,
+                        $di.$ng.$interpolate,
+                        $di.$ng.$q,
+                        $di.$app.HTMLRendererService,
+                        $di.$app.CurrentProjectService,
+                        $di.$app.LibrariesService,
+                        $di.$app.ConfigService
+                    ];
+                    return EditorController;
+                })();
+                controllers.EditorController = EditorController;
+                $di.checkDI(EditorController);
+            })(csseditor.controllers || (csseditor.controllers = {}));
+            var controllers = csseditor.controllers;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (controllers) {
+                var PanelConfigController = (function () {
+                    function PanelConfigController($rootScope) {
+                        var _this = this;
+                        this.$rootScope = $rootScope;
+                        this.showPanel = false;
+                        this.editorLoaded = function (editor) {
+                            _this._editorLoaded(editor);
+                        };
+                        this._editorLoaded = function (editor) {
+                            if (!_this.editor) {
+                                _this.editor = editor;
+                                editor['setOptions']({
+                                    enableBasicAutocompletion: true,
+                                    enableSnippets: true,
+                                    enableLiveAutocompletion: true
+                                });
+                                _this.$rootScope.$on('ui-layout.resize', function () {
+                                    editor.resize();
+                                });
+                                editor.resize();
+                            }
+                        };
+                    }
+                    PanelConfigController.prototype.toggleConfig = function () {
+                        this.showPanel = !this.showPanel;
+                        !this.showPanel && this.updateEditorRenderer();
+                    };
+
+                    PanelConfigController.prototype.moveFileOrder = function (key, table, dir) {
+                        if ((dir == 1 && key + 1 == table.length + 1) || (dir == -1 && key - 1 < 0))
+                            return;
+                        var source = table[key];
+                        var swap = table[key + dir];
+                        table[key] = swap;
+                        table[key + dir] = source;
+                    };
+                    PanelConfigController.prototype.removeFile = function (table, id) {
+                        table.splice(id, 1);
+                    };
+                    PanelConfigController.prototype.addFile = function (table, file) {
+                        if (typeof file === "undefined") { file = ""; }
+                        if (file != "" && table.indexOf(file) == -1) {
+                            table.push(file);
+                        }
+                    };
+                    PanelConfigController.prototype.updateEditorRenderer = function () {
+                    };
+                    PanelConfigController.$inject = [
+                        $di.$ng.$rootScope
+                    ];
+                    return PanelConfigController;
+                })();
+                controllers.PanelConfigController = PanelConfigController;
+            })(csseditor.controllers || (csseditor.controllers = {}));
+            var controllers = csseditor.controllers;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (controllers) {
+                var BodyPanelConfigController = (function (_super) {
+                    __extends(BodyPanelConfigController, _super);
+                    function BodyPanelConfigController($rootScope, currentProjectService) {
+                        _super.call(this, $rootScope);
+                        this.currentProjectService = currentProjectService;
+                    }
+                    BodyPanelConfigController.prototype.toggleConfig = function () {
+                        this.showPanel = !this.showPanel;
+                    };
+                    BodyPanelConfigController.$inject = [
+                        $di.$ng.$rootScope,
+                        $di.$app.CurrentProjectService
+                    ];
+                    return BodyPanelConfigController;
+                })(controllers.PanelConfigController);
+                controllers.BodyPanelConfigController = BodyPanelConfigController;
+            })(csseditor.controllers || (csseditor.controllers = {}));
+            var controllers = csseditor.controllers;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (controllers) {
+                var CssPanelConfigController = (function (_super) {
+                    __extends(CssPanelConfigController, _super);
+                    function CssPanelConfigController($rootScope, currentProjectService) {
+                        _super.call(this, $rootScope);
+                        this.currentProjectService = currentProjectService;
+                        this.renderMode = "css";
+                    }
+                    CssPanelConfigController.prototype.updateEditorRenderer = function () {
+                        this.editor.getSession().setMode(this.currentProjectService.project.options.cssRenderMode == "css" ? "ace/mode/css" : "ace/mode/stylus");
+                    };
+                    CssPanelConfigController.$inject = [
+                        $di.$ng.$rootScope,
+                        $di.$app.CurrentProjectService
+                    ];
+                    return CssPanelConfigController;
+                })(controllers.PanelConfigController);
+                controllers.CssPanelConfigController = CssPanelConfigController;
+            })(csseditor.controllers || (csseditor.controllers = {}));
+            var controllers = csseditor.controllers;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (controllers) {
+                var JsPanelConfigController = (function (_super) {
+                    __extends(JsPanelConfigController, _super);
+                    function JsPanelConfigController($rootScope, currentProjectService) {
+                        _super.call(this, $rootScope);
+                        this.currentProjectService = currentProjectService;
+                        this.renderMode = "javascript";
+                    }
+                    JsPanelConfigController.prototype.updateEditorRenderer = function () {
+                        this.editor.getSession().setMode(this.currentProjectService.project.options.jsRenderMode == "javascript" ? "ace/mode/javascript" : "ace/mode/typescript");
+                    };
+                    JsPanelConfigController.$inject = [
+                        $di.$ng.$rootScope,
+                        $di.$app.CurrentProjectService
+                    ];
+                    return JsPanelConfigController;
+                })(controllers.PanelConfigController);
+                controllers.JsPanelConfigController = JsPanelConfigController;
+            })(csseditor.controllers || (csseditor.controllers = {}));
+            var controllers = csseditor.controllers;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (controllers) {
+                var RenderDevicesController = (function () {
+                    function RenderDevicesController($rootScope, currentProjectService) {
+                        this.currentProjectService = currentProjectService;
+                        this.responseModes = {
+                            "full": true,
+                            "desktop": false,
+                            "tablet": false,
+                            "mobile": false
+                        };
+                    }
+                    RenderDevicesController.prototype.setResponsiveMode = function (mode) {
+                        var _this = this;
+                        Object.keys(this.responseModes).forEach(function (key) {
+                            _this.responseModes[key] = false;
+                        });
+                        this.responseModes[mode] = true;
+                    };
+                    RenderDevicesController.$inject = [
+                        $di.$ng.$rootScope,
+                        $di.$app.CurrentProjectService
+                    ];
+                    return RenderDevicesController;
+                })();
+                controllers.RenderDevicesController = RenderDevicesController;
+            })(csseditor.controllers || (csseditor.controllers = {}));
+            var controllers = csseditor.controllers;
         })(xperiments.csseditor || (xperiments.csseditor = {}));
         var csseditor = xperiments.csseditor;
     })(io.xperiments || (io.xperiments = {}));

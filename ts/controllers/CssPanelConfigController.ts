@@ -5,7 +5,10 @@ module io.xperiments.csseditor.controllers
 	export class CssPanelConfigController extends PanelConfigController
 	{
 		renderMode:string = "css";
-		static $inject = ["$rootScope","CurrentProjectService"];
+		static $inject = [
+			$di.$ng.$rootScope,
+			$di.$app.CurrentProjectService
+		];
 		constructor( $rootScope:ng.IRootScopeService, private currentProjectService:CurrentProjectService  )
 		{
 			super( $rootScope );
