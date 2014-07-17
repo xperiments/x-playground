@@ -594,7 +594,7 @@ var io;
                         this.project.options = new PlaygroundProjectOptions();
                         this.project.options.cssRenderMode = "css";
                         this.project.options.jsRenderMode = "javascript";
-                        this.project.options.js_wrap_mode = "onLoad";
+                        this.project.options.js_wrap_mode = "LoadTemplateView";
                         this.project.options.inlineFiles = false;
                         this.project.options.inlineProxyURL = "http://cors-anywhere.herokuapp.com/";
                     };
@@ -627,7 +627,7 @@ var io;
                         var _this = this;
                         Object.keys(this.configService.js_wrap_map).forEach(function (key) {
                             console.log(_this.configService.js_wrap_map[key]);
-                            _this.iframeTemplateRenderers[key] = _this.$interpolate(window[_this.configService.js_wrap_map[key]].html);
+                            _this.iframeTemplateRenderers[_this.configService.js_wrap_map[key]] = _this.$interpolate(window[_this.configService.js_wrap_map[key]].html);
                         });
                     };
 

@@ -23,7 +23,7 @@ module io.xperiments.csseditor.services
 			this.project.options = new PlaygroundProjectOptions();
 			this.project.options.cssRenderMode = "css";
 			this.project.options.jsRenderMode = "javascript";
-			this.project.options.js_wrap_mode = "onLoad";
+			this.project.options.js_wrap_mode = "LoadTemplateView";
 			this.project.options.inlineFiles = false;
 			this.project.options.inlineProxyURL = "http://cors-anywhere.herokuapp.com/";
 		}

@@ -50,7 +50,7 @@ module io.xperiments.csseditor.services
 			Object.keys( this.configService.js_wrap_map )
 				.forEach( (key)=>{
 					console.log(this.configService.js_wrap_map[key])
-					this.iframeTemplateRenderers[key]=this.$interpolate( window[ this.configService.js_wrap_map[key]].html )
+					this.iframeTemplateRenderers[this.configService.js_wrap_map[key]]=this.$interpolate( window[ this.configService.js_wrap_map[key]].html )
 				})
 
 		}
