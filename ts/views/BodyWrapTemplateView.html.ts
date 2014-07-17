@@ -1,0 +1,1 @@
+module BodyWrapTemplateView { export var html =  '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style></head><body>{{body}}<script type="text/javascript">	{{js}}</script></body></html>' } 

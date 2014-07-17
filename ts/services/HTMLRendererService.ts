@@ -4,15 +4,17 @@
  */
 ///<reference path="../reference.ts"/>
 declare var stylus;
-declare var TypeScript:any;
+
 module io.xperiments.csseditor.services
 {
 
-
 	import PlaygroundProject = io.xperiments.csseditor.models.PlaygroundProject;
-	import ResourceLoaderService = io.xperiments.csseditor.services.ResourceLoaderService;
-	import IResourceLoaderServiceResult = io.xperiments.csseditor.services.IResourceLoaderServiceResult;
 
+	export interface IFrameworkGroupedFiles
+	{
+		css:string[];
+		js:string[];
+	}
 	export interface HTMLRenderingContext
 	{
 		body:string;
@@ -28,28 +30,43 @@ module io.xperiments.csseditor.services
 			 $di.$ng.$q
 			,$di.$ng.$interpolate
 			,$di.$app.ResourceLoaderService
+			,$di.$app.ConfigService
 		];
 		private iframeTemplateRenderer:ng.IInterpolationFunction;
+		private iframeTemplateRenderers:{ [key:string]:ng.IInterpolationFunction} = {};
 		constructor(
 			private $q:ng.IQService
 			,private $interpolate:ng.IInterpolateService
 			,private resourceLoaderService:ResourceLoaderService
+			,private configService:ConfigService
 		)
 		{
-			this.iframeTemplateRenderer = $interpolate( PreviewView.html );
+
 
 		}
 
+		public configLoaded()
+		{
+			Object.keys( this.configService.js_wrap_map )
+				.forEach( (key)=>{
+					console.log(this.configService.js_wrap_map[key])
+					this.iframeTemplateRenderers[key]=this.$interpolate( window[ this.configService.js_wrap_map[key]].html )
+				})
 
+		}
 
 		public render( project:PlaygroundProject ):ng.IPromise<string>
 		{
+
 			var allPromises:ng.IPromise<any>[]= [ this.renderCss(project), this.renderJs(project) ,this.renderBody(project) ];
 
 			// inline external files?
 			if( project.options.inlineFiles && project.options.inlineProxyURL!="" )
 			{
-				var filesToInline:string[] = [].concat(project.cssFiles).concat(project.jsFiles)
+				var frameworkFiles:IFrameworkGroupedFiles = this.getFrameworkFiles( project );
+				frameworkFiles.css.concat( project.cssFiles );
+				frameworkFiles.js.concat( project.jsFiles );
+				var filesToInline:string[] = [].concat(frameworkFiles.css).concat(frameworkFiles.js);
 				allPromises.push( this.resourceLoaderService.load(filesToInline, project.options.inlineProxyURL) );
 			}
 
@@ -90,9 +107,9 @@ module io.xperiments.csseditor.services
 				defer.resolve( project.js );
 			}
 			this.tsCompiler && this.tsCompiler.removeFile("output.ts");
-			this.tsCompiler.addFile("output.ts", TypeScript.ScriptSnapshot.fromString( project.js ) );
+			this.tsCompiler.addFile("output.ts", TypeScript.ScriptSnapshot.fromString( project.js ),null,null,null );
 			var output:string = "";
-			var iter = this.tsCompiler.compile();
+			var iter = this.tsCompiler.compile(null,null);
 			while (iter.moveNext()) {
 				var current = iter.current().outputFiles[0];
 				output += !!current ? current.text : '';
@@ -111,6 +128,11 @@ module io.xperiments.csseditor.services
 
 		private renderPage( project:PlaygroundProject , css:string, js:string, body:string, resourceResult:IResourceLoaderServiceResult ):string
 		{
+			console.log( 'RAP',project.options.js_wrap_mode)
+			var frameworkFiles:IFrameworkGroupedFiles = this.getFrameworkFiles( project );
+			frameworkFiles.css.concat( project.cssFiles );
+			frameworkFiles.js.concat( project.jsFiles );
+
 			var htmlContext:HTMLRenderingContext;
 			if( resourceResult )
 			{
@@ -119,27 +141,52 @@ module io.xperiments.csseditor.services
 				{
 					body:body,
 					css:css,
-					styles:project.cssFiles.map((cssFile:string)=>{
+					styles:frameworkFiles.css.map((cssFile:string)=>{
 						return '<link rel="stylesheet" type="text/css" href="data:text/html;base64,'+resourceResult[project.options.inlineProxyURL+cssFile]+'"/>\n'
 					}).join(''),
 					js:js,
-					scripts:project.jsFiles.map((jsFile:string)=>{ return '<script src="data:text/html;base64,'+resourceResult[project.options.inlineProxyURL+jsFile]+'"></script>\n'}).join('')
+					scripts:frameworkFiles.js.map((jsFile:string)=>{ return '<script src="data:text/html;base64,'+resourceResult[project.options.inlineProxyURL+jsFile]+'"></script>\n'}).join('')
 				};
 
-				return this.iframeTemplateRenderer(htmlContext);
+				return this.iframeTemplateRenderers[project.options.js_wrap_mode](htmlContext);
 
 			}
 
 			htmlContext= {
 				body:body,
 				css:css,
-				styles:project.cssFiles.map((cssFile:string)=>{ return '<link rel="stylesheet" type="text/css" href="'+cssFile+'"/>\n'}).join(''),
+				styles:frameworkFiles.css.map((cssFile:string)=>{ return '<link rel="stylesheet" type="text/css" href="'+cssFile+'"/>\n'}).join(''),
 				js:js,
-				scripts:project.jsFiles.map((jsFile:string)=>{ return '<script src="'+jsFile+'"></script>\n'}).join('')
+				scripts:frameworkFiles.js.map((jsFile:string)=>{ return '<script src="'+jsFile+'"></script>\n'}).join('')
 			};
-			return this.iframeTemplateRenderer(htmlContext)
+			return this.iframeTemplateRenderers[project.options.js_wrap_mode](htmlContext);
 
 		}
 
+		private getFrameworkFiles( project:PlaygroundProject ):IFrameworkGroupedFiles
+		{
+			var resultFiles:IFrameworkGroupedFiles =
+			{
+				css:[],
+				js:[]
+			}
+			if( !project.options.framework ) return resultFiles;
+
+			var currentFrameworkFiles = project.options.framework.url;
+			var target:string[];
+			currentFrameworkFiles.forEach(( file:string)=>{
+				target = this.getFileExtension(file)=="css" ? resultFiles.css:resultFiles.js;
+				target.push( file );
+			})
+			console.log( resultFiles )
+			return resultFiles;
+		}
+
+		private getFileExtension( url:string ):string
+		{
+			return url.split('/').pop().split('.').pop();
+		}
+
 	}
+	$di.checkDI( HTMLRendererService );
 }

@@ -1,3 +1,23 @@
+var BodyWrapTemplateView;
+(function (BodyWrapTemplateView) {
+    BodyWrapTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style></head><body>{{body}}<script type="text/javascript">	{{js}}</script></body></html>';
+})(BodyWrapTemplateView || (BodyWrapTemplateView = {}));
+var DomReadyTemplateView;
+(function (DomReadyTemplateView) {
+    DomReadyTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style>	<script type="text/javascript">	var VanillaRunOnDomReady = function() {		{{js}}	};	var alreadyrunflag = 0;	if (document.addEventListener)		document.addEventListener("DOMContentLoaded", function(){			alreadyrunflag=1;			VanillaRunOnDomReady();		}, false);	else if (document.all && !window.opera) {		document.write(\'<sc\'+\'cript type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/sc\'+\'ript>\');		var contentloadtag = document.getElementById("contentloadtag");		contentloadtag.onreadystatechange=function(){			if (this.readyState=="complete"){				alreadyrunflag=1;				VanillaRunOnDomReady();			}		}	}	window.onload = function(){		setTimeout("if (!alreadyrunflag){VanillaRunOnDomReady}", 0);	}	</script></head><body>{{body}}</body></html>';
+})(DomReadyTemplateView || (DomReadyTemplateView = {}));
+var HeadWrapTemplateView;
+(function (HeadWrapTemplateView) {
+    HeadWrapTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style>	<script type="text/javascript">{{js}}</script></head><body>{{body}}</body></html>';
+})(HeadWrapTemplateView || (HeadWrapTemplateView = {}));
+var LoadTemplateView;
+(function (LoadTemplateView) {
+    LoadTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style>	<script type="text/javascript">	window.onload=function(){		{{js}}	}	</script></head><body>{{body}}</body></html>';
+})(LoadTemplateView || (LoadTemplateView = {}));
+var PreviewView;
+(function (PreviewView) {
+    PreviewView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style></head><body>{{body}}<script>{{js}}</script></body></html>';
+})(PreviewView || (PreviewView = {}));
 var $di;
 (function ($di) {
     var $ng = (function () {
@@ -354,6 +374,7 @@ var io;
                 var Serializable = io.xperiments.utils.serialize.Serializable;
 
                 var Serializer = io.xperiments.utils.serialize.Serializer;
+
                 var PlaygroundProjectOptions = (function (_super) {
                     __extends(PlaygroundProjectOptions, _super);
                     function PlaygroundProjectOptions() {
@@ -362,6 +383,8 @@ var io;
                         this.inlineProxyURL = "";
                         this.cssRenderMode = "";
                         this.jsRenderMode = "";
+                        this.js_wrap_mode = "";
+                        this.framework = null;
                     }
                     return PlaygroundProjectOptions;
                 })(Serializable);
@@ -374,6 +397,7 @@ var io;
                         this.inlineProxyURL = null;
                         this.cssRenderMode = null;
                         this.jsRenderMode = null;
+                        this.js_wrap_mode = null;
                     }
                     return PlaygroundProjectOptionsSerializer;
                 })();
@@ -480,10 +504,6 @@ var io;
     })(io.xperiments || (io.xperiments = {}));
     var xperiments = io.xperiments;
 })(io || (io = {}));
-var PreviewView;
-(function (PreviewView) {
-    PreviewView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	<style>{{css}}</style></head><body>{{body}}{{scripts}}<script>	{{js}}</script></body></html>';
-})(PreviewView || (PreviewView = {}));
 var io;
 (function (io) {
     (function (xperiments) {
@@ -536,7 +556,7 @@ var io;
                     }
                     ConfigService.prototype.load = function () {
                         var _this = this;
-                        return this.$http.get('/config/config.js').then(function (data) {
+                        return this.$http.get('/config/config.json').then(function (data) {
                             _this.frameworks = data.data.frameworks;
                             _this.js_wrap_map = data.data.js_wrap_map;
                             return data.data;
@@ -574,6 +594,7 @@ var io;
                         this.project.options = new PlaygroundProjectOptions();
                         this.project.options.cssRenderMode = "css";
                         this.project.options.jsRenderMode = "javascript";
+                        this.project.options.js_wrap_mode = "onLoad";
                         this.project.options.inlineFiles = false;
                         this.project.options.inlineProxyURL = "http://cors-anywhere.herokuapp.com/";
                     };
@@ -594,19 +615,31 @@ var io;
         (function (csseditor) {
             (function (services) {
                 var HTMLRendererService = (function () {
-                    function HTMLRendererService($q, $interpolate, resourceLoaderService) {
+                    function HTMLRendererService($q, $interpolate, resourceLoaderService, configService) {
                         this.$q = $q;
                         this.$interpolate = $interpolate;
                         this.resourceLoaderService = resourceLoaderService;
+                        this.configService = configService;
+                        this.iframeTemplateRenderers = {};
                         this.tsCompiler = new TypeScript.TypeScriptCompiler();
-                        this.iframeTemplateRenderer = $interpolate(PreviewView.html);
                     }
+                    HTMLRendererService.prototype.configLoaded = function () {
+                        var _this = this;
+                        Object.keys(this.configService.js_wrap_map).forEach(function (key) {
+                            console.log(_this.configService.js_wrap_map[key]);
+                            _this.iframeTemplateRenderers[key] = _this.$interpolate(window[_this.configService.js_wrap_map[key]].html);
+                        });
+                    };
+
                     HTMLRendererService.prototype.render = function (project) {
                         var _this = this;
                         var allPromises = [this.renderCss(project), this.renderJs(project), this.renderBody(project)];
 
                         if (project.options.inlineFiles && project.options.inlineProxyURL != "") {
-                            var filesToInline = [].concat(project.cssFiles).concat(project.jsFiles);
+                            var frameworkFiles = this.getFrameworkFiles(project);
+                            frameworkFiles.css.concat(project.cssFiles);
+                            frameworkFiles.js.concat(project.jsFiles);
+                            var filesToInline = [].concat(frameworkFiles.css).concat(frameworkFiles.js);
                             allPromises.push(this.resourceLoaderService.load(filesToInline, project.options.inlineProxyURL));
                         }
 
@@ -639,9 +672,9 @@ var io;
                             defer.resolve(project.js);
                         }
                         this.tsCompiler && this.tsCompiler.removeFile("output.ts");
-                        this.tsCompiler.addFile("output.ts", TypeScript.ScriptSnapshot.fromString(project.js));
+                        this.tsCompiler.addFile("output.ts", TypeScript.ScriptSnapshot.fromString(project.js), null, null, null);
                         var output = "";
-                        var iter = this.tsCompiler.compile();
+                        var iter = this.tsCompiler.compile(null, null);
                         while (iter.moveNext()) {
                             var current = iter.current().outputFiles[0];
                             output += !!current ? current.text : '';
@@ -658,710 +691,74 @@ var io;
                     };
 
                     HTMLRendererService.prototype.renderPage = function (project, css, js, body, resourceResult) {
+                        console.log('RAP', project.options.js_wrap_mode);
+                        var frameworkFiles = this.getFrameworkFiles(project);
+                        frameworkFiles.css.concat(project.cssFiles);
+                        frameworkFiles.js.concat(project.jsFiles);
+
                         var htmlContext;
                         if (resourceResult) {
                             htmlContext = {
                                 body: body,
                                 css: css,
-                                styles: project.cssFiles.map(function (cssFile) {
+                                styles: frameworkFiles.css.map(function (cssFile) {
                                     return '<link rel="stylesheet" type="text/css" href="data:text/html;base64,' + resourceResult[project.options.inlineProxyURL + cssFile] + '"/>\n';
                                 }).join(''),
                                 js: js,
-                                scripts: project.jsFiles.map(function (jsFile) {
+                                scripts: frameworkFiles.js.map(function (jsFile) {
                                     return '<script src="data:text/html;base64,' + resourceResult[project.options.inlineProxyURL + jsFile] + '"></script>\n';
                                 }).join('')
                             };
 
-                            return this.iframeTemplateRenderer(htmlContext);
+                            return this.iframeTemplateRenderers[project.options.js_wrap_mode](htmlContext);
                         }
 
                         htmlContext = {
                             body: body,
                             css: css,
-                            styles: project.cssFiles.map(function (cssFile) {
+                            styles: frameworkFiles.css.map(function (cssFile) {
                                 return '<link rel="stylesheet" type="text/css" href="' + cssFile + '"/>\n';
                             }).join(''),
                             js: js,
-                            scripts: project.jsFiles.map(function (jsFile) {
+                            scripts: frameworkFiles.js.map(function (jsFile) {
                                 return '<script src="' + jsFile + '"></script>\n';
                             }).join('')
                         };
-                        return this.iframeTemplateRenderer(htmlContext);
+                        return this.iframeTemplateRenderers[project.options.js_wrap_mode](htmlContext);
+                    };
+
+                    HTMLRendererService.prototype.getFrameworkFiles = function (project) {
+                        var _this = this;
+                        var resultFiles = {
+                            css: [],
+                            js: []
+                        };
+                        if (!project.options.framework)
+                            return resultFiles;
+
+                        var currentFrameworkFiles = project.options.framework.url;
+                        var target;
+                        currentFrameworkFiles.forEach(function (file) {
+                            target = _this.getFileExtension(file) == "css" ? resultFiles.css : resultFiles.js;
+                            target.push(file);
+                        });
+                        console.log(resultFiles);
+                        return resultFiles;
+                    };
+
+                    HTMLRendererService.prototype.getFileExtension = function (url) {
+                        return url.split('/').pop().split('.').pop();
                     };
                     HTMLRendererService.$inject = [
                         $di.$ng.$q,
                         $di.$ng.$interpolate,
-                        $di.$app.ResourceLoaderService
+                        $di.$app.ResourceLoaderService,
+                        $di.$app.ConfigService
                     ];
                     return HTMLRendererService;
                 })();
                 services.HTMLRendererService = HTMLRendererService;
-            })(csseditor.services || (csseditor.services = {}));
-            var services = csseditor.services;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (services) {
-                var LibrariesService = (function () {
-                    function LibrariesService() {
-                        this.libraries = [
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery-git2.js"
-                                ],
-                                "label": "jQuery 2.x WIP (via git)",
-                                "group": "jQuery"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery-2.1.0.min.js"
-                                ],
-                                "label": "jQuery 2.1.0",
-                                "group": "jQuery"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery-git1.js"
-                                ],
-                                "label": "jQuery 1.x WIP (via git)",
-                                "group": "jQuery"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery-1.11.0.min.js"
-                                ],
-                                "label": "jQuery 1.11.0",
-                                "group": "jQuery"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery-1.9.1.min.js"
-                                ],
-                                "label": "jQuery 1.9.1",
-                                "group": "jQuery"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/ui/jquery-ui-git.css",
-                                    "http://code.jquery.com/jquery-git.js",
-                                    "http://code.jquery.com/ui/jquery-ui-git.js"
-                                ],
-                                "label": "jQuery UI WIP (via git)",
-                                "group": "jQuery UI"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.min.css",
-                                    "http://code.jquery.com/jquery-1.11.0.min.js",
-                                    "http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"
-                                ],
-                                "label": "jQuery UI 1.11.0",
-                                "group": "jQuery UI"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.min.css",
-                                    "http://code.jquery.com/jquery-1.11.0.min.js",
-                                    "http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"
-                                ],
-                                "label": "jQuery UI 1.10.4",
-                                "group": "jQuery UI"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/ui/1.9.2/themes/smoothness/jquery-ui.css",
-                                    "http://code.jquery.com/jquery-1.8.3.min.js",
-                                    "http://code.jquery.com/ui/1.9.2/jquery-ui.js"
-                                ],
-                                "label": "jQuery UI 1.9.2",
-                                "group": "jQuery UI"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/mobile/git/jquery.mobile-git.css",
-                                    "http://code.jquery.com/jquery-1.11.0.min.js",
-                                    "http://code.jquery.com/mobile/git/jquery.mobile-git.js"
-                                ],
-                                "label": "jQuery Mobile WIP (via git)",
-                                "group": "jQuery Mobile"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css",
-                                    "http://code.jquery.com/jquery-1.11.0.min.js",
-                                    "http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"
-                                ],
-                                "label": "jQuery Mobile 1.4.2",
-                                "group": "jQuery Mobile"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css",
-                                    "http://code.jquery.com/jquery-1.9.1.min.js",
-                                    "http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"
-                                ],
-                                "label": "jQuery Mobile 1.3.2",
-                                "group": "jQuery Mobile"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css",
-                                    "http://code.jquery.com/jquery-1.8.3.min.js",
-                                    "http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"
-                                ],
-                                "label": "jQuery Mobile 1.2.1",
-                                "group": "jQuery Mobile"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.min.css",
-                                    "http://code.jquery.com/jquery-1.6.4.min.js",
-                                    "http://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.min.js"
-                                ],
-                                "label": "jQuery Mobile 1.1.2",
-                                "group": "jQuery Mobile"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery.min.js",
-                                    "http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css",
-                                    "http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"
-                                ],
-                                "label": "Bootstrap Latest",
-                                "group": "Bootstrap"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery.min.js",
-                                    "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css",
-                                    "http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"
-                                ],
-                                "label": "Bootstrap 2.3.2",
-                                "group": "Bootstrap"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/prototype/1/prototype.js"
-                                ],
-                                "label": "Prototype latest",
-                                "group": "Prototype"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/prototype/1.7/prototype.js"
-                                ],
-                                "label": "Prototype 1.7.1",
-                                "group": "Prototype"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/prototype/1.6.1.0/prototype.js"
-                                ],
-                                "label": "Prototype 1.6.1.0",
-                                "group": "Prototype"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/prototype/1/prototype.js",
-                                    "http://ajax.googleapis.com/ajax/libs/scriptaculous/1/scriptaculous.js"
-                                ],
-                                "label": "script.aculo.us latest",
-                                "group": "Prototype"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/prototype/1/prototype.js",
-                                    "http://ajax.googleapis.com/ajax/libs/scriptaculous/1.8.3/scriptaculous.js"
-                                ],
-                                "label": "script.aculo.us 1.8.3",
-                                "group": "Prototype"
-                            },
-                            {
-                                "url": [
-                                    "http://yui.yahooapis.com/3.10.0/build/yui/yui.js"
-                                ],
-                                "label": "YUI 3.10.0",
-                                "group": "YUI"
-                            },
-                            {
-                                "url": [
-                                    "http://yui.yahooapis.com/2.9.0/build/yuiloader/yuiloader-min.js"
-                                ],
-                                "label": "YUI 2.9.0",
-                                "group": "YUI"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/mootools/1.5.0/mootools-yui-compressed.js"
-                                ],
-                                "label": "MooTools 1.5.0",
-                                "group": "MooTools"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/mootools/1.5.0/mootools-nocompat-yui-compressed.js"
-                                ],
-                                "label": "MooTools 1.5.0 (without 1.2+ compatibility layer)",
-                                "group": "MooTools"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/mootools/1.4.5/mootools-yui-compressed.js"
-                                ],
-                                "label": "MooTools 1.4.5",
-                                "group": "MooTools"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1/dojo/dojo.js"
-                                ],
-                                "label": "Dojo latest",
-                                "group": "Dojo"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1.8/dojo/dojo.js"
-                                ],
-                                "label": "Dojo 1.8.4",
-                                "group": "Dojo"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1.7/dojo/dojo.js"
-                                ],
-                                "label": "Dojo 1.7.4",
-                                "group": "Dojo"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1/dijit/themes/claro/claro.css",
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1/dojo/dojo.js"
-                                ],
-                                "label": "Dijit latest (Claro)",
-                                "group": "Dojo"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1.8.4/dijit/themes/claro/claro.css",
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1.8.4/dojo/dojo.js"
-                                ],
-                                "label": "Dijit 1.8.4 (Claro)",
-                                "group": "Dojo"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1.7.4/dijit/themes/claro/claro.css",
-                                    "http://ajax.googleapis.com/ajax/libs/dojo/1.7.4/dojo/dojo.xd.js"
-                                ],
-                                "label": "Dijit 1.7.4 (Claro)",
-                                "group": "Dojo"
-                            },
-                            {
-                                "url": [
-                                    "http://cdn.kendostatic.com/2014.1.528/styles/kendo.common.min.css",
-                                    "http://cdn.kendostatic.com/2014.1.528/styles/kendo.default.min.css",
-                                    "http://code.jquery.com/jquery-1.9.1.min.js",
-                                    "http://cdn.kendostatic.com/2014.1.528/js/kendo.ui.core.min.js"
-                                ],
-                                "label": "Kendo UI Core Q1 SP2",
-                                "group": "Kendo UI"
-                            },
-                            {
-                                "url": [
-                                    "http://cdn.kendostatic.com/2014.1.318/styles/kendo.common.min.css",
-                                    "http://cdn.kendostatic.com/2014.1.318/styles/kendo.rtl.min.css",
-                                    "http://cdn.kendostatic.com/2014.1.318/styles/kendo.default.min.css",
-                                    "http://cdn.kendostatic.com/2014.1.318/styles/kendo.dataviz.min.css",
-                                    "http://cdn.kendostatic.com/2014.1.318/styles/kendo.dataviz.default.min.css",
-                                    "http://cdn.kendostatic.com/2014.1.318/styles/kendo.mobile.all.min.css",
-                                    "http://code.jquery.com/jquery-1.9.1.min.js",
-                                    "http://cdn.kendostatic.com/2014.1.318/js/kendo.all.min.js"
-                                ],
-                                "label": "Kendo UI Q1 2014",
-                                "group": "Kendo UI"
-                            },
-                            {
-                                "url": [
-                                    "http://cdn.kendostatic.com/2013.3.1119/styles/kendo.common.min.css",
-                                    "http://cdn.kendostatic.com/2013.3.1119/styles/kendo.rtl.min.css",
-                                    "http://cdn.kendostatic.com/2013.3.1119/styles/kendo.default.min.css",
-                                    "http://cdn.kendostatic.com/2013.3.1119/styles/kendo.dataviz.min.css",
-                                    "http://cdn.kendostatic.com/2013.3.1119/styles/kendo.dataviz.default.min.css",
-                                    "http://cdn.kendostatic.com/2013.3.1119/styles/kendo.mobile.all.min.css",
-                                    "http://code.jquery.com/jquery-1.9.1.min.js",
-                                    "http://cdn.kendostatic.com/2013.3.1119/js/kendo.all.min.js"
-                                ],
-                                "label": "Kendo UI Q3 2013",
-                                "group": "Kendo UI"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/qunit/qunit-git.css",
-                                    "http://code.jquery.com/qunit/qunit-git.js"
-                                ],
-                                "label": "QUnit",
-                                "group": "Testing"
-                            },
-                            {
-                                "url": [
-                                    "http://zeptojs.com/zepto.min.js"
-                                ],
-                                "label": "Zepto latest",
-                                "group": "Zepto"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min.js"
-                                ],
-                                "label": "Zepto 1.0",
-                                "group": "Zepto"
-                            },
-                            {
-                                "url": [
-                                    "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.1/angular.min.js"
-                                ],
-                                "label": "Angular 1.3.0 beta 1 Unstable",
-                                "group": "Angular"
-                            },
-                            {
-                                "url": [
-                                    "https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"
-                                ],
-                                "label": "Angular 1.2.14 Stable",
-                                "group": "Angular"
-                            },
-                            {
-                                "url": [
-                                    "https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.js"
-                                ],
-                                "label": "Angular 1.2.14 Uncompressed",
-                                "group": "Angular"
-                            },
-                            {
-                                "url": [
-                                    "https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"
-                                ],
-                                "label": "Angular 1.0.7 Stable",
-                                "group": "Angular"
-                            },
-                            {
-                                "url": [
-                                    "//fb.me/react-0.9.0.js"
-                                ],
-                                "label": "React 0.9.0",
-                                "group": "React"
-                            },
-                            {
-                                "url": [
-                                    "//fb.me/react-with-addons-0.9.0.js"
-                                ],
-                                "label": "React with Add-Ons 0.9.0",
-                                "group": "React"
-                            },
-                            {
-                                "url": [
-                                    "http://nightly.enyojs.com/latest/enyo-nightly/enyo.css",
-                                    "http://nightly.enyojs.com/latest/enyo-nightly/enyo.js",
-                                    "http://nightly.enyojs.com/latest/lib/layout/package.js",
-                                    "http://nightly.enyojs.com/latest/lib/onyx/package.js",
-                                    "http://nightly.enyojs.com/latest/lib/g11n/package.js",
-                                    "http://nightly.enyojs.com/latest/lib/canvas/package.js"
-                                ],
-                                "label": "Enyo latest",
-                                "group": "Enyo"
-                            },
-                            {
-                                "url": [
-                                    "http://enyojs.com/enyo-2.2.0/enyo.css",
-                                    "http://enyojs.com/enyo-2.2.0/enyo.js",
-                                    "http://enyojs.com/enyo-2.2.0/lib/layout/package.js",
-                                    "http://enyojs.com/enyo-2.2.0/lib/onyx/package.js",
-                                    "http://enyojs.com/enyo-2.2.0/lib/g11n/package.js",
-                                    "http://enyojs.com/enyo-2.2.0/lib/canvas/package.js"
-                                ],
-                                "label": "Enyo 2.2.0",
-                                "group": "Enyo"
-                            },
-                            {
-                                "url": [
-                                    "//cdnjs.cloudflare.com/ajax/libs/bluebird/1.2.2/bluebird.js"
-                                ],
-                                "label": "Bluebird 1.2.2",
-                                "group": "Promises"
-                            },
-                            {
-                                "url": [
-                                    "https://www.promisejs.org/polyfills/promise-4.0.0.js"
-                                ],
-                                "label": "Promise 4.0.0",
-                                "group": "Promises"
-                            },
-                            {
-                                "url": [
-                                    "//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.1/q.js"
-                                ],
-                                "label": "Q 1.0.1",
-                                "group": "Promises"
-                            },
-                            {
-                                "url": [
-                                    "//cdn.jsdelivr.net/rsvp/3.0.6/rsvp.js"
-                                ],
-                                "label": "RSVP 3.0.6",
-                                "group": "Promises"
-                            },
-                            {
-                                "url": [
-                                    "http://jashkenas.github.io/underscore/underscore-min.js",
-                                    "http://jashkenas.github.io/backbone/backbone-min.js"
-                                ],
-                                "label": "Backbone latest",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://jashkenas.github.io/underscore/underscore-min.js",
-                                    "http://jashkenas.github.io/backbone/backbone-min.js",
-                                    "http://marionettejs.com/downloads/backbone.marionette.min.js"
-                                ],
-                                "label": "MarionetteJS latest",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/bonsai/0.4/bonsai.min.js"
-                                ],
-                                "label": "Bonsai 0.4.latest",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://jashkenas.github.io/coffee-script/extras/coffee-script.js"
-                                ],
-                                "label": "CoffeeScript",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.js",
-                                    "http://builds.emberjs.com.s3.amazonaws.com/tags/v1.0.0/ember.js"
-                                ],
-                                "label": "Ember.js 1.0.0",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"
-                                ],
-                                "label": "ES5 shim 2.0.8",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://extjs.cachefly.net/ext-3.1.0/resources/css/ext-all.css",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/ext-core/3.1.0/ext-core.min.js"
-                                ],
-                                "label": "ext-core 3.1.0",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/css/normalize.min.css",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/css/foundation.min.css",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/js/vendor/jquery.min.js",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/foundation/5.0.3/js/foundation.min.js"
-                                ],
-                                "label": "Foundation 5.0.3",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.js"
-                                ],
-                                "label": "Handlebars.js 1.0.0",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js"
-                                ],
-                                "label": "Knockout 3.0.0",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/less.js/1.3.3/less.min.js"
-                                ],
-                                "label": "Less 1.3.3",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"
-                                ],
-                                "label": "Lo-Dash 2.4.1",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://modernizr.com/downloads/modernizr-latest.js"
-                                ],
-                                "label": "Modernizr Development latest",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js",
-                                    "http://cdnjs.cloudflare.com/ajax/libs/detectizr/1.5.0/detectizr.min.js"
-                                ],
-                                "label": "Detectizr 1.5.0",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"
-                                ],
-                                "label": "Prefixfree 1.0.7",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/processing.js/1.4.1/processing-api.min.js"
-                                ],
-                                "label": "Processing 1.4.1",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://d3js.org/d3.v3.min.js"
-                                ],
-                                "label": "D3 3.x",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "//code.highcharts.com/highcharts.js"
-                                ],
-                                "label": "Highcharts latest",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"
-                                ],
-                                "label": "Rapha&euml;l 2.1.0",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/sammy.js/0.7.4/sammy.min.js"
-                                ],
-                                "label": "Sammy 0.7.4",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdn.sencha.io/touch/1.1.0/resources/css/sencha-touch.css",
-                                    "http://cdn.sencha.io/touch/1.1.0/sencha-touch.js"
-                                ],
-                                "label": "Sencha Touch",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://remy.github.io/twitterlib/twitterlib.min.js"
-                                ],
-                                "label": "TwitterLib",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://jashkenas.github.io/underscore/underscore-min.js"
-                                ],
-                                "label": "underscore",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://code.jquery.com/jquery.min.js",
-                                    "//canjs.com/release/2.0.3/can.jquery.min.js"
-                                ],
-                                "label": "CanJS 2.0.3",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/three.js/r61/three.min.js"
-                                ],
-                                "label": "Three.js r61",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js"
-                                ],
-                                "label": "HTML5 shiv",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://lungo.tapquo.com/demo/components/lungo/lungo.css",
-                                    "http://lungo.tapquo.com/demo/components/lungo/lungo.theme.css",
-                                    "http://lungo.tapquo.com/demo/components/lungo/lungo.icon.css",
-                                    "http://lungo.tapquo.com/demo/components/quojs/quo.js",
-                                    "http://lungo.tapquo.com/demo/components/lungo/lungo.js"
-                                ],
-                                "label": "Lungo",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "//cdnjs.cloudflare.com/ajax/libs/polymer/0.3.3/platform.js",
-                                    "//cdnjs.cloudflare.com/ajax/libs/polymer/0.3.3/polymer.js"
-                                ],
-                                "label": "Polymer 0.3.3",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"
-                                ],
-                                "label": "Font Awesome 4.0.3",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "//cdnjs.cloudflare.com/ajax/libs/paper.js/0.9.12/paper.js"
-                                ],
-                                "label": "Paper.js 0.9.12",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "http://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.7/TweenMax.min.js"
-                                ],
-                                "label": "GSAP 1.11.7",
-                                "group": "Standalone"
-                            },
-                            {
-                                "url": [
-                                    "//cdnjs.cloudflare.com/ajax/libs/phaser/2.0.5/phaser.min.js"
-                                ],
-                                "label": "Phaser 2.0.5",
-                                "group": "Standalone"
-                            }
-                        ];
-                    }
-                    return LibrariesService;
-                })();
-                services.LibrariesService = LibrariesService;
+                $di.checkDI(HTMLRendererService);
             })(csseditor.services || (csseditor.services = {}));
             var services = csseditor.services;
         })(xperiments.csseditor || (xperiments.csseditor = {}));
@@ -1375,19 +772,23 @@ var io;
         (function (csseditor) {
             (function (controllers) {
                 var EditorController = (function () {
-                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, librariesService, ConfigService) {
+                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, configService) {
+                        var _this = this;
                         this.$rootScope = $rootScope;
                         this.$sce = $sce;
                         this.$interpolate = $interpolate;
                         this.$q = $q;
                         this.HTMLRendererService = HTMLRendererService;
                         this.currentProjectService = currentProjectService;
-                        this.librariesService = librariesService;
-                        this.ConfigService = ConfigService;
+                        this.configService = configService;
                         this.iframeSource = "";
                         this.compiledResult = "";
                         this.currentProject = currentProjectService.project;
-                        this.libraries = librariesService.libraries;
+                        this.configService.load().then(function (data) {
+                            _this.frameworks = data.frameworks;
+                            _this.js_wrap_modes = data.js_wrap_map;
+                            _this.HTMLRendererService.configLoaded();
+                        });
                     }
                     EditorController.prototype.run = function () {
                         var _this = this;
@@ -1397,6 +798,12 @@ var io;
                             _this.iframeSource = _this.$sce.trustAsResourceUrl(_this.compiledResult);
                         });
                     };
+
+                    EditorController.prototype.setLayout = function () {
+                        var dragBars = angular.element(document.getElementsByClassName('ui-splitbar')).each(function (el) {
+                            console.log(el);
+                        });
+                    };
                     EditorController.$inject = [
                         $di.$ng.$rootScope,
                         $di.$ng.$sce,
@@ -1404,7 +811,6 @@ var io;
                         $di.$ng.$q,
                         $di.$app.HTMLRendererService,
                         $di.$app.CurrentProjectService,
-                        $di.$app.LibrariesService,
                         $di.$app.ConfigService
                     ];
                     return EditorController;

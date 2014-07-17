@@ -2,6 +2,7 @@
 module io.xperiments.csseditor.controllers
 {
 	import CurrentProjectService = io.xperiments.csseditor.services.CurrentProjectService;
+	import IFramework = io.xperiments.csseditor.services.IFramework;
 	export class BodyPanelConfigController extends PanelConfigController
 	{
 		static $inject = [
@@ -16,5 +17,6 @@ module io.xperiments.csseditor.controllers
 		{
 			this.showPanel = !this.showPanel;
 		}
+
 	}
 }

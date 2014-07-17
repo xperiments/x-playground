@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title></title>
+	{{styles}}
+	{{scripts}}
+	<style>{{css}}</style>
+	<script type="text/javascript">
+
+	var VanillaRunOnDomReady = function() {
+		{{js}}
+	};
+
+	var alreadyrunflag = 0;
+
+	if (document.addEventListener)
+		document.addEventListener("DOMContentLoaded", function(){
+			alreadyrunflag=1;
+			VanillaRunOnDomReady();
+		}, false);
+	else if (document.all && !window.opera) {
+		document.write('<sc'+'cript type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/sc'+'ript>');
+		var contentloadtag = document.getElementById("contentloadtag");
+		contentloadtag.onreadystatechange=function(){
+			if (this.readyState=="complete"){
+				alreadyrunflag=1;
+				VanillaRunOnDomReady();
+			}
+		}
+	}
+
+	window.onload = function(){
+		setTimeout("if (!alreadyrunflag){VanillaRunOnDomReady}", 0);
+	}
+
+	</script>
+</head>
+<body>
+{{body}}
+</body>
+</html>

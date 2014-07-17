@@ -4,12 +4,16 @@ module io.xperiments.csseditor.models
 	import Serializable = io.xperiments.utils.serialize.Serializable;
 	import ISerializerHelper = io.xperiments.utils.serialize.ISerializerHelper;
 	import Serializer = io.xperiments.utils.serialize.Serializer;
+	import IFramework = io.xperiments.csseditor.services.IFramework;
 	export class PlaygroundProjectOptions extends Serializable
 	{
 		public inlineFiles:boolean = false;
 		public inlineProxyURL:string = "";
 		public cssRenderMode:string = "";
 		public jsRenderMode:string = "";
+
+		public js_wrap_mode:string = "";
+		public framework:IFramework = null;
 	}
 
 	export class PlaygroundProjectOptionsSerializer implements ISerializerHelper
@@ -20,6 +24,8 @@ module io.xperiments.csseditor.models
 		public inlineProxyURL:string = null;
 		public cssRenderMode:string = null;
 		public jsRenderMode:string = null;
+
+		public js_wrap_mode:string = null;
 
 	}
 	export class PlaygroundProject extends Serializable

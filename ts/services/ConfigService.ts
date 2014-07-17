@@ -43,9 +43,10 @@ module io.xperiments.csseditor.services
 			 private $http:ng.IHttpService
 			,private $q:ng.IQService
 		){}
-		load():ng.IPromise<any>
+
+		load():ng.IPromise<IJSONConfig>
 		{
-			return this.$http.get('/config/config.js').then( ( data:ng.IHttpPromiseCallbackArg<IJSONConfig> )=>{
+			return this.$http.get('/config/config.json').then( ( data:ng.IHttpPromiseCallbackArg<IJSONConfig> )=>{
 
 				this.frameworks = data.data.frameworks;
 				this.js_wrap_map = data.data.js_wrap_map;

@@ -26,7 +26,7 @@
 	<ui-layout options="{ flow : 'column', dividerSize:'4px' }">
 
 		<!-- EDITORS -->
-		<div class="editor-container" ui-layout options="{ flow : 'row', dividerSize:'4px' }">
+		<div class="editor-container" ui-layout options="{ flow : 'row', dividerSize:'4px'}">
 			<!-- HTML -->
 			<div ng-controller="BodyPanelConfigController as bodyEditor" class="editor-container--panel">
 				<header>
@@ -57,12 +57,12 @@
 						</tr>
 					</table>
 					<label class="editor-panel--config__divider">Select framework</label>
-					<select class="editor-select" ng-change="list.change(myColor)" ng-model="myColor" ng-options="lib.label group by lib.group for lib in editor.libraries">
+					<select class="editor-select" ng-model="bodyEditor.currentProjectService.project.options.framework" ng-options="framework.label group by framework.group for framework in editor.frameworks">
 						<option value="">-- choose framework --</option>
 					</select>
 					<label class="editor-panel--config__divider">Script loading</label>
-					<select class="editor-select" ng-change="list.change(myColor)" ng-model="myColor" ng-options="lib.label group by lib.group for lib in editor.libraries">
-						<option value="">-- choose framework --</option>
+					<select class="editor-select" ng-model="bodyEditor.currentProjectService.project.options.js_wrap_mode" ng-options="label for (label , label) in editor.js_wrap_modes">
+						<option value="">-- choose js wrap mode --</option>
 					</select>
 				</div>
 			</div>

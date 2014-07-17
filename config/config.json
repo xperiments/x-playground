@@ -1,11 +1,11 @@
 {
-	js_wrap_map:{
-		 "onLoad":"onloadTemplate"
-		,"domready":"onloadTemplate"
-		,"wrap in head":"onloadTemplate"
-		,"wrap in":"onloadTemplate"
+	"js_wrap_map":{
+		 "onLoad":"LoadTemplateView"
+		,"domready":"DomReadyTemplateView"
+		,"wrap in head":"HeadWrapTemplateView"
+		,"wrap in body":"BodyWrapTemplateView"
 	},
-	frameworks:
+	"frameworks":
 	[
 		{
 			"url": [
