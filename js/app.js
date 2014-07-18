@@ -1,23 +1,72 @@
-var BodyWrapTemplateView;
-(function (BodyWrapTemplateView) {
-    BodyWrapTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style></head><body>{{body}}<script type="text/javascript">	{{js}}</script></body></html>';
-})(BodyWrapTemplateView || (BodyWrapTemplateView = {}));
-var DomReadyTemplateView;
-(function (DomReadyTemplateView) {
-    DomReadyTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style>	<script type="text/javascript">	var VanillaRunOnDomReady = function() {		{{js}}	};	var alreadyrunflag = 0;	if (document.addEventListener)		document.addEventListener("DOMContentLoaded", function(){			alreadyrunflag=1;			VanillaRunOnDomReady();		}, false);	else if (document.all && !window.opera) {		document.write(\'<sc\'+\'cript type="text/javascript" id="contentloadtag" defer="defer" src="javascript:void(0)"><\/sc\'+\'ript>\');		var contentloadtag = document.getElementById("contentloadtag");		contentloadtag.onreadystatechange=function(){			if (this.readyState=="complete"){				alreadyrunflag=1;				VanillaRunOnDomReady();			}		}	}	window.onload = function(){		setTimeout("if (!alreadyrunflag){VanillaRunOnDomReady}", 0);	}	</script></head><body>{{body}}</body></html>';
-})(DomReadyTemplateView || (DomReadyTemplateView = {}));
-var HeadWrapTemplateView;
-(function (HeadWrapTemplateView) {
-    HeadWrapTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style>	<script type="text/javascript">{{js}}</script></head><body>{{body}}</body></html>';
-})(HeadWrapTemplateView || (HeadWrapTemplateView = {}));
-var LoadTemplateView;
-(function (LoadTemplateView) {
-    LoadTemplateView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style>	<script type="text/javascript">	window.onload=function(){		{{js}}	}	</script></head><body>{{body}}</body></html>';
-})(LoadTemplateView || (LoadTemplateView = {}));
-var PreviewView;
-(function (PreviewView) {
-    PreviewView.html = '<!DOCTYPE html><html><head lang="en">	<meta charset="UTF-8">	<title></title>	{{styles}}	{{scripts}}	<style>{{css}}</style></head><body>{{body}}<script>{{js}}</script></body></html>';
-})(PreviewView || (PreviewView = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (services) {
+                var DropboxService = (function () {
+                    function DropboxService() {
+                        var _this = this;
+                        this._isAuthenticated = false;
+                        this._dropBox = new Dropbox.Client({ key: 'mize1oifvzi72sd' });
+                        this._dropBox.authenticate({ interactive: false }, function (error) {
+                            _this._onAuthFinish(error);
+                        });
+                        if (this._dropBox.isAuthenticated()) {
+                            alert('YES');
+                            this._isAuthenticated = true;
+                        }
+                    }
+                    DropboxService.prototype.authenticate = function () {
+                        this._dropBox.authenticate();
+                    };
+
+                    DropboxService.prototype._onAuthFinish = function (error) {
+                        if (error) {
+                            console.log(error);
+                        }
+                        ;
+                    };
+                    return DropboxService;
+                })();
+                services.DropboxService = DropboxService;
+            })(csseditor.services || (csseditor.services = {}));
+            var services = csseditor.services;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var Hanson;
+(function (Hanson) {
+    function toJSON(input) {
+        var UNESCAPE_MAP = { '\\"': '"', "\\`": "`", "\\'": "'" };
+        var ML_ESCAPE_MAP = { '\n': '\\n', "\r": '\\r', "\t": '\\t', '"': '\\"' };
+        function unescapeQuotes(r) {
+            return UNESCAPE_MAP[r] || r;
+        }
+
+        return input.replace(/`(?:\\.|[^`])*`|'(?:\\.|[^'])*'|"(?:\\.|[^"])*"|\/\*[^]*?\*\/|\/\/.*\n?/g, function (s) {
+            if (s.charAt(0) == '/')
+                return '';
+            else
+                return s;
+        }).replace(/(?:true|false|null)(?=[^\w_$]|$)|([a-zA-Z_$][\w_$]*)|`((?:\\.|[^`])*)`|'((?:\\.|[^'])*)'|"(?:\\.|[^"])*"|(,)(?=\s*[}\]])/g, function (s, identifier, multilineQuote, singleQuote, lonelyComma) {
+            if (lonelyComma)
+                return '';
+            else if (identifier != null)
+                return '"' + identifier + '"';
+            else if (multilineQuote != null)
+                return '"' + multilineQuote.replace(/\\./g, unescapeQuotes).replace(/[\n\r\t"]/g, function (r) {
+                    return ML_ESCAPE_MAP[r];
+                }) + '"';
+            else if (singleQuote != null)
+                return '"' + singleQuote.replace(/\\./g, unescapeQuotes).replace(/"/g, '\\"') + '"';
+            else
+                return s;
+        });
+    }
+    Hanson.toJSON = toJSON;
+})(Hanson || (Hanson = {}));
 var $di;
 (function ($di) {
     var $ng = (function () {
@@ -92,6 +141,7 @@ var $di;
         __dev_mode = devMode;
     }
     $di.setDevelopment = setDevelopment;
+    ;
 
     function initStaticClass(Class) {
         Object.keys(Class).forEach(function (key) {
@@ -99,17 +149,19 @@ var $di;
         });
     }
     $di.initStaticClass = initStaticClass;
-    function checkDI(Class) {
-        if (!__dev_mode)
-            return;
+    ;
 
-        var className = getClassName(Class);
-        if (annotate(Class).toString().toLowerCase() != Class.$inject.toString().toLowerCase()) {
-            var err = ("\n\nPlease check the injection in class $className$\n\n").replace('$className$', className);
-            throw new Error(err);
+    function checkDI(Class) {
+        if (!__dev_mode) {
             return;
         }
-        console.log('$di class checked: ' + className);
+        ;
+
+        var className = getClassName(Class);
+        if (annotate(Class).toString().toLowerCase() !== Class.$inject.toString().toLowerCase()) {
+            var err = ('\n\nPlease check the injection in class $className$\n\n').replace('$className$', className);
+            throw new Error(err);
+        }
     }
     $di.checkDI = checkDI;
     ;
@@ -128,7 +180,7 @@ var $di;
         var fnText;
         var argDecl;
 
-        if (typeof fn == 'function') {
+        if (typeof fn === 'function') {
             $inject = [];
             if (fn.length) {
                 fnText = fn.toString().replace(STRIP_COMMENTS, '');
@@ -154,6 +206,7 @@ var $di;
         $app.LibrariesService = null;
         $app.ConfigService = null;
         $app.ResourceLoaderService = null;
+        $app.DropboxService = null;
         return $app;
     })();
     $di.$app = $app;
@@ -380,10 +433,10 @@ var io;
                     function PlaygroundProjectOptions() {
                         _super.apply(this, arguments);
                         this.inlineFiles = false;
-                        this.inlineProxyURL = "";
-                        this.cssRenderMode = "";
-                        this.jsRenderMode = "";
-                        this.js_wrap_mode = "";
+                        this.inlineProxyURL = '';
+                        this.cssRenderMode = '';
+                        this.jsRenderMode = '';
+                        this.js_wrap_mode = '';
                         this.framework = null;
                     }
                     return PlaygroundProjectOptions;
@@ -392,7 +445,7 @@ var io;
 
                 var PlaygroundProjectOptionsSerializer = (function () {
                     function PlaygroundProjectOptionsSerializer() {
-                        this["@serializer"] = null;
+                        this['@serializer'] = null;
                         this.inlineFiles = null;
                         this.inlineProxyURL = null;
                         this.cssRenderMode = null;
@@ -406,16 +459,16 @@ var io;
                     __extends(PlaygroundProject, _super);
                     function PlaygroundProject() {
                         _super.apply(this, arguments);
-                        this.css = "";
-                        this.js = "";
-                        this.body = "";
+                        this.css = '';
+                        this.js = '';
+                        this.body = '';
                     }
                     return PlaygroundProject;
                 })(Serializable);
                 models.PlaygroundProject = PlaygroundProject;
                 var PlaygroundProjectSerializer = (function () {
                     function PlaygroundProjectSerializer() {
-                        this["@serializer"] = null;
+                        this['@serializer'] = null;
                         this.css = null;
                         this.js = null;
                         this.body = null;
@@ -429,74 +482,6 @@ var io;
                 Serializer.registerClass(function () {
                     return io.xperiments.csseditor.models.PlaygroundProject;
                 }, PlaygroundProjectSerializer);
-            })(csseditor.models || (csseditor.models = {}));
-            var models = csseditor.models;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (models) {
-                var RenderDevices = (function () {
-                    function RenderDevices() {
-                        this.tablets = [
-                            { title: "Amazon Kindle Fire HDX 7″", width: 1920, height: 1200, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; en-us; KFTHWI Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Silk/3.13 Safari/535.19 Silk-Accelerated=true", touch: true, mobile: true },
-                            { title: "Amazon Kindle Fire HDX 8.9″", width: 2560, height: 1600, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; en-us; KFAPWI Build/JDQ39) AppleWebKit/535.19 (KHTML, like Gecko) Silk/3.13 Safari/535.19 Silk-Accelerated=true", touch: true, mobile: true },
-                            { title: "Amazon Kindle Fire (First Generation)", width: 1024, height: 600, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.0.141.16-Gen4_11004310) AppleWebkit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true", touch: true, mobile: true },
-                            { title: "Apple iPad 1 / 2 / iPad Mini", width: 1024, height: 768, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (iPad; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8L1 Safari/6533.18.5", touch: true, mobile: true },
-                            { title: "Apple iPad 3 / 4", width: 1024, height: 768, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53", touch: true, mobile: true },
-                            { title: "BlackBerry PlayBook", width: 1024, height: 600, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (PlayBook; U; RIM Tablet OS 2.1.0; en-US) AppleWebKit/536.2+ (KHTML like Gecko) Version/7.2.1.0 Safari/536.2+", touch: true, mobile: true },
-                            { title: "Google Nexus 10", width: 1280, height: 800, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; Android 4.3; Nexus 10 Build/JSS15Q) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.72 Safari/537.36", touch: true, mobile: true },
-                            { title: "Google Nexus 7 2", width: 960, height: 600, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; Android 4.3; Nexus 7 Build/JSS15Q) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.72 Safari/537.36", touch: true, mobile: true },
-                            { title: "Google Nexus 7", width: 966, height: 604, deviceScaleFactor: 1.325, userAgent: "Mozilla/5.0 (Linux; Android 4.3; Nexus 7 Build/JSS15Q) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.72 Safari/537.36", touch: true, mobile: true },
-                            { title: "Motorola Xoom, Xyboard", width: 1280, height: 800, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Linux; U; Android 3.0; en-us; Xoom Build/HRI39) AppleWebKit/525.10 (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2", touch: true, mobile: true },
-                            { title: "Samsung Galaxy Tab 7.7, 8.9, 10.1", width: 1280, height: 800, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Linux; U; Android 2.2; en-us; SCH-I800 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "Samsung Galaxy Tab", width: 1024, height: 600, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Linux; U; Android 2.2; en-us; SCH-I800 Build/FROYO) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true }
-                        ];
-                        this.phones = [
-                            { title: "Apple iPhone 3GS", width: 320, height: 480, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5", touch: true, mobile: true },
-                            { title: "Apple iPhone 4", width: 320, height: 480, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5", touch: true, mobile: true },
-                            { title: "Apple iPhone 5", width: 320, height: 568, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X; en-us) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53", touch: true, mobile: true },
-                            { title: "BlackBerry Z10", width: 384, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (BB10; Touch) AppleWebKit/537.10+ (KHTML, like Gecko) Version/10.0.9.2372 Mobile Safari/537.10+", touch: true, mobile: true },
-                            { title: "BlackBerry Z30", width: 360, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (BB10; Touch) AppleWebKit/537.10+ (KHTML, like Gecko) Version/10.0.9.2372 Mobile Safari/537.10+", touch: true, mobile: true },
-                            { title: "Google Nexus 4", width: 384, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 4 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19", touch: true, mobile: true },
-                            { title: "Google Nexus 5", width: 360, height: 640, deviceScaleFactor: 3, userAgent: "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19", touch: true, mobile: true },
-                            { title: "Google Nexus S", width: 320, height: 533, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 2.3.4; en-us; Nexus S Build/GRJ22) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "HTC Evo, Touch HD, Desire HD, Desire", width: 320, height: 533, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Sprint APA9292KT Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "HTC One X, EVO LTE", width: 360, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; Android 4.0.3; HTC One X Build/IML74K) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", touch: true, mobile: true },
-                            { title: "HTC Sensation, Evo 3D", width: 360, height: 640, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 4.0.3; en-us; HTC Sensation Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", touch: true, mobile: true },
-                            { title: "LG Optimus 2X, Optimus 3D, Optimus Black", width: 320, height: 533, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 2.2; en-us; LG-P990/V08c Build/FRG83) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 MMS/LG-Android-MMS-V1.0/1.2", touch: true, mobile: true },
-                            { title: "LG Optimus G", width: 384, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; Android 4.0; LG-E975 Build/IMM76L) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19", touch: true, mobile: true },
-                            { title: "LG Optimus LTE, Optimus 4X HD", width: 424, height: 753, deviceScaleFactor: 1.7, userAgent: "Mozilla/5.0 (Linux; U; Android 2.3; en-us; LG-P930 Build/GRJ90) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "LG Optimus One", width: 213, height: 320, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 2.2.1; en-us; LG-MS690 Build/FRG83) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "Motorola Defy, Droid, Droid X, Milestone", width: 320, height: 569, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 2.0; en-us; Milestone Build/ SHOLS_U2_01.03.1) AppleWebKit/530.17 (KHTML, like Gecko) Version/4.0 Mobile Safari/530.17", touch: true, mobile: true },
-                            { title: "Motorola Droid 3, Droid 4, Droid Razr, Atrix 4G, Atrix 2", width: 540, height: 960, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Linux; U; Android 2.2; en-us; Droid Build/FRG22D) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "Motorola Droid Razr HD", width: 720, height: 1280, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Linux; U; Android 2.3; en-us; DROID RAZR 4G Build/6.5.1-73_DHD-11_M1-29) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "Nokia C5, C6, C7, N97, N8, X7", width: 360, height: 640, deviceScaleFactor: 1, userAgent: "NokiaN97/21.1.107 (SymbianOS/9.4; Series60/5.0 Mozilla/5.0; Profile/MIDP-2.1 Configuration/CLDC-1.1) AppleWebkit/525 (KHTML, like Gecko) BrowserNG/7.1.4", touch: true, mobile: true },
-                            { title: "Nokia Lumia 7X0, Lumia 8XX, Lumia 900, N800, N810, N900", width: 320, height: 533, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; IEMobile/10.0; ARM; Touch; NOKIA; Lumia 820)", touch: true, mobile: true },
-                            { title: "Samsung Galaxy Note 3", width: 540, height: 960, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; Android 4.3; en-us; SM-N900T Build/JSS15J) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", touch: true, mobile: true },
-                            { title: "Samsung Galaxy Note II", width: 360, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; Android 4.1; en-us; GT-N7100 Build/JRO03C) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", touch: true, mobile: true },
-                            { title: "Samsung Galaxy Note", width: 400, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; Android 2.3; en-us; SAMSUNG-SGH-I717 Build/GINGERBREAD) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "Samsung Galaxy S III, Galaxy Nexus", width: 360, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; Android 4.0; en-us; GT-I9300 Build/IMM76D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", touch: true, mobile: true },
-                            { title: "Samsung Galaxy S, S II, W", width: 320, height: 533, deviceScaleFactor: 1.5, userAgent: "Mozilla/5.0 (Linux; U; Android 2.1; en-us; GT-I9000 Build/ECLAIR) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2", touch: true, mobile: true },
-                            { title: "Samsung Galaxy S4", width: 360, height: 640, deviceScaleFactor: 3, userAgent: "Mozilla/5.0 (Linux; Android 4.2.2; GT-I9505 Build/JDQ39) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.59 Mobile Safari/537.36", touch: true, mobile: true },
-                            { title: "Sony Xperia S, Ion", width: 360, height: 640, deviceScaleFactor: 2, userAgent: "Mozilla/5.0 (Linux; U; Android 4.0; en-us; LT28at Build/6.1.C.1.111) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", touch: true, mobile: true },
-                            { title: "Sony Xperia Sola, U", width: 480, height: 854, deviceScaleFactor: 1, userAgent: "Mozilla/5.0 (Linux; U; Android 2.3; en-us; SonyEricssonST25i Build/6.0.B.1.564) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", touch: true, mobile: true },
-                            { title: "Sony Xperia Z, Z1", width: 360, height: 640, deviceScaleFactor: 3, userAgent: "Mozilla/5.0 (Linux; U; Android 4.2; en-us; SonyC6903 Build/14.1.G.1.518) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", touch: true, mobile: true }
-                        ];
-                        this.notebooks = [
-                            { title: "Notebook with touch", width: 1280, height: 950, deviceScaleFactor: 1, userAgent: "", touch: true, mobile: false },
-                            { title: "Notebook with HiDPI screen", width: 1440, height: 900, deviceScaleFactor: 2, userAgent: "", touch: false, mobile: false },
-                            { title: "Generic notebook", width: 1280, height: 800, deviceScaleFactor: 1, userAgent: "", touch: false, mobile: false }
-                        ];
-                    }
-                    return RenderDevices;
-                })();
-                models.RenderDevices = RenderDevices;
             })(csseditor.models || (csseditor.models = {}));
             var models = csseditor.models;
         })(xperiments.csseditor || (xperiments.csseditor = {}));
@@ -556,10 +541,14 @@ var io;
                     }
                     ConfigService.prototype.load = function () {
                         var _this = this;
-                        return this.$http.get('/config/config.json').then(function (data) {
+                        return this.$http.get('/config/config.hson', {
+                            transformResponse: [function (data, headersGetter) {
+                                    return JSON.parse(Hanson.toJSON(data));
+                                }]
+                        }).then(function (data) {
                             _this.frameworks = data.data.frameworks;
                             _this.js_wrap_map = data.data.js_wrap_map;
-                            return data.data;
+                            return { frameworks: data.data.frameworks, js_wrap_map: data.data.js_wrap_map };
                         });
                     };
                     ConfigService.$inject = [
@@ -592,11 +581,11 @@ var io;
                         this.project.cssFiles = [];
                         this.project.jsFiles = [];
                         this.project.options = new PlaygroundProjectOptions();
-                        this.project.options.cssRenderMode = "css";
-                        this.project.options.jsRenderMode = "javascript";
-                        this.project.options.js_wrap_mode = "LoadTemplateView";
+                        this.project.options.cssRenderMode = 'css';
+                        this.project.options.jsRenderMode = 'javascript';
+                        this.project.options.js_wrap_mode = 'onLoad';
                         this.project.options.inlineFiles = false;
-                        this.project.options.inlineProxyURL = "http://cors-anywhere.herokuapp.com/";
+                        this.project.options.inlineProxyURL = 'http://cors-anywhere.herokuapp.com/';
                     };
                     return CurrentProjectService;
                 })();
@@ -625,9 +614,10 @@ var io;
                     }
                     HTMLRendererService.prototype.configLoaded = function () {
                         var _this = this;
+                        var template;
                         Object.keys(this.configService.js_wrap_map).forEach(function (key) {
-                            console.log(_this.configService.js_wrap_map[key]);
-                            _this.iframeTemplateRenderers[_this.configService.js_wrap_map[key]] = _this.$interpolate(window[_this.configService.js_wrap_map[key]].html);
+                            template = _this.configService.js_wrap_map[key];
+                            _this.iframeTemplateRenderers[key] = _this.$interpolate(template);
                         });
                     };
 
@@ -635,7 +625,7 @@ var io;
                         var _this = this;
                         var allPromises = [this.renderCss(project), this.renderJs(project), this.renderBody(project)];
 
-                        if (project.options.inlineFiles && project.options.inlineProxyURL != "") {
+                        if (project.options.inlineFiles && project.options.inlineProxyURL !== '') {
                             var frameworkFiles = this.getFrameworkFiles(project);
                             frameworkFiles.css.concat(project.cssFiles);
                             frameworkFiles.js.concat(project.jsFiles);
@@ -656,24 +646,24 @@ var io;
                     HTMLRendererService.prototype.renderCss = function (project) {
                         var defer = this.$q.defer();
                         var promise = defer.promise;
-                        if (project.options.cssRenderMode == "css") {
+                        if (project.options.cssRenderMode === 'css') {
                             defer.resolve(project.css);
                             return promise;
                         }
                         stylus(project.css).render(function (err, css) {
-                            err ? defer.reject("/*Stylus Error CHECK YOUR CODE*/") : defer.resolve(css);
+                            err ? defer.reject('/* Stylus Error CHECK YOUR CODE */') : defer.resolve(css);
                         });
                         return promise;
                     };
                     HTMLRendererService.prototype.renderJs = function (project) {
                         var defer = this.$q.defer();
                         var promise = defer.promise;
-                        if (project.options.jsRenderMode == "javascript") {
+                        if (project.options.jsRenderMode === 'javascript') {
                             defer.resolve(project.js);
                         }
-                        this.tsCompiler && this.tsCompiler.removeFile("output.ts");
-                        this.tsCompiler.addFile("output.ts", TypeScript.ScriptSnapshot.fromString(project.js), null, null, null);
-                        var output = "";
+                        this.tsCompiler && this.tsCompiler.removeFile('output.ts');
+                        this.tsCompiler.addFile('output.ts', TypeScript.ScriptSnapshot.fromString(project.js), null, null, null);
+                        var output = '';
                         var iter = this.tsCompiler.compile(null, null);
                         while (iter.moveNext()) {
                             var current = iter.current().outputFiles[0];
@@ -733,13 +723,15 @@ var io;
                             css: [],
                             js: []
                         };
-                        if (!project.options.framework)
+                        if (!project.options.framework) {
                             return resultFiles;
+                        }
+                        ;
 
                         var currentFrameworkFiles = project.options.framework.url;
                         var target;
                         currentFrameworkFiles.forEach(function (file) {
-                            target = _this.getFileExtension(file) == "css" ? resultFiles.css : resultFiles.js;
+                            target = _this.getFileExtension(file) === 'css' ? resultFiles.css : resultFiles.js;
                             target.push(file);
                         });
                         console.log(resultFiles);
@@ -772,7 +764,7 @@ var io;
         (function (csseditor) {
             (function (controllers) {
                 var EditorController = (function () {
-                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, configService) {
+                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, configService, dropboxService) {
                         var _this = this;
                         this.$rootScope = $rootScope;
                         this.$sce = $sce;
@@ -781,8 +773,9 @@ var io;
                         this.HTMLRendererService = HTMLRendererService;
                         this.currentProjectService = currentProjectService;
                         this.configService = configService;
-                        this.iframeSource = "";
-                        this.compiledResult = "";
+                        this.dropboxService = dropboxService;
+                        this.iframeSource = '';
+                        this.compiledResult = '';
                         this.currentProject = currentProjectService.project;
                         this.configService.load().then(function (data) {
                             _this.frameworks = data.frameworks;
@@ -790,18 +783,15 @@ var io;
                             _this.HTMLRendererService.configLoaded();
                         });
                     }
+                    EditorController.prototype.dropboxConnect = function () {
+                        this.dropboxService.authenticate();
+                    };
                     EditorController.prototype.run = function () {
                         var _this = this;
                         this.HTMLRendererService.render(this.currentProject).then(function (result) {
                             _this.$rootScope.$emit('uiLayout.update');
                             _this.compiledResult = 'data:text/html;base64,' + btoa(result);
                             _this.iframeSource = _this.$sce.trustAsResourceUrl(_this.compiledResult);
-                        });
-                    };
-
-                    EditorController.prototype.setLayout = function () {
-                        var dragBars = angular.element(document.getElementsByClassName('ui-splitbar')).each(function (el) {
-                            console.log(el);
                         });
                     };
                     EditorController.$inject = [
@@ -811,7 +801,8 @@ var io;
                         $di.$ng.$q,
                         $di.$app.HTMLRendererService,
                         $di.$app.CurrentProjectService,
-                        $di.$app.ConfigService
+                        $di.$app.ConfigService,
+                        $di.$app.DropboxService
                     ];
                     return EditorController;
                 })();
@@ -834,9 +825,6 @@ var io;
                         var _this = this;
                         this.$rootScope = $rootScope;
                         this.showPanel = false;
-                        this.editorLoaded = function (editor) {
-                            _this._editorLoaded(editor);
-                        };
                         this._editorLoaded = function (editor) {
                             if (!_this.editor) {
                                 _this.editor = editor;
@@ -851,6 +839,9 @@ var io;
                                 editor.resize();
                             }
                         };
+                        this.editorLoaded = function (editor) {
+                            _this._editorLoaded(editor);
+                        };
                     }
                     PanelConfigController.prototype.toggleConfig = function () {
                         this.showPanel = !this.showPanel;
@@ -858,8 +849,10 @@ var io;
                     };
 
                     PanelConfigController.prototype.moveFileOrder = function (key, table, dir) {
-                        if ((dir == 1 && key + 1 == table.length + 1) || (dir == -1 && key - 1 < 0))
+                        if ((dir === 1 && key + 1 === table.length + 1) || (dir === -1 && key - 1 < 0)) {
                             return;
+                        }
+                        ;
                         var source = table[key];
                         var swap = table[key + dir];
                         table[key] = swap;
@@ -869,8 +862,8 @@ var io;
                         table.splice(id, 1);
                     };
                     PanelConfigController.prototype.addFile = function (table, file) {
-                        if (typeof file === "undefined") { file = ""; }
-                        if (file != "" && table.indexOf(file) == -1) {
+                        if (typeof file === "undefined") { file = ''; }
+                        if (file !== '' && table.indexOf(file) === -1) {
                             table.push(file);
                         }
                     };
@@ -927,10 +920,11 @@ var io;
                     function CssPanelConfigController($rootScope, currentProjectService) {
                         _super.call(this, $rootScope);
                         this.currentProjectService = currentProjectService;
-                        this.renderMode = "css";
+                        this.renderMode = 'css';
                     }
                     CssPanelConfigController.prototype.updateEditorRenderer = function () {
-                        this.editor.getSession().setMode(this.currentProjectService.project.options.cssRenderMode == "css" ? "ace/mode/css" : "ace/mode/stylus");
+                        var mode = this.currentProjectService.project.options.cssRenderMode;
+                        this.editor.getSession().setMode(mode === 'css' ? 'ace/mode/css' : 'ace/mode/stylus');
                     };
                     CssPanelConfigController.$inject = [
                         $di.$ng.$rootScope,
@@ -956,10 +950,11 @@ var io;
                     function JsPanelConfigController($rootScope, currentProjectService) {
                         _super.call(this, $rootScope);
                         this.currentProjectService = currentProjectService;
-                        this.renderMode = "javascript";
+                        this.renderMode = 'javascript';
                     }
                     JsPanelConfigController.prototype.updateEditorRenderer = function () {
-                        this.editor.getSession().setMode(this.currentProjectService.project.options.jsRenderMode == "javascript" ? "ace/mode/javascript" : "ace/mode/typescript");
+                        var mode = this.currentProjectService.project.options.jsRenderMode;
+                        this.editor.getSession().setMode(mode === 'javascript' ? 'ace/mode/javascript' : 'ace/mode/typescript');
                     };
                     JsPanelConfigController.$inject = [
                         $di.$ng.$rootScope,
@@ -984,10 +979,10 @@ var io;
                     function RenderDevicesController($rootScope, currentProjectService) {
                         this.currentProjectService = currentProjectService;
                         this.responseModes = {
-                            "full": true,
-                            "desktop": false,
-                            "tablet": false,
-                            "mobile": false
+                            'full': true,
+                            'desktop': false,
+                            'tablet': false,
+                            'mobile': false
                         };
                     }
                     RenderDevicesController.prototype.setResponsiveMode = function (mode) {
@@ -1011,7 +1006,6 @@ var io;
     })(io.xperiments || (io.xperiments = {}));
     var xperiments = io.xperiments;
 })(io || (io = {}));
-var RenderDevices = io.xperiments.csseditor.models.RenderDevices;
 var app = angular.module('PulsarCodeEditor', ['ui.layout', 'ui.ace']);
 app.controller(io.xperiments.csseditor.controllers);
 app.service(io.xperiments.csseditor.services);
@@ -1021,11 +1015,13 @@ app.filter('unsafe', function ($sce) {
     };
 });
 
-app.filter({ "pathFileName": function () {
+app.filter({
+    'pathFileName': function () {
         return function (path) {
             return path.split('/').pop();
         };
-    } });
+    }
+});
 
 app.config([
     '$compileProvider',
@@ -1033,5 +1029,3 @@ app.config([
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/);
     }
 ]);
-
-app.value('RenderDevices', new RenderDevices());

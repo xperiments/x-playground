@@ -16,6 +16,7 @@
 <nav class="editor-menu">
 	<ul class="editor-menu--ul">
 		<li><a class="topcoat-button--large--cta" ng-click="editor.run()"><i class="fa fa-rocket"></i></a></li>
+		<li><a class="topcoat-button--large--cta" ng-click="editor.dropboxConnect()"><i class="fa fa-rocket"></i></a></li>
 		<!--li><a class="topcoat-button--large--cta" ng-class="{'button--disabled':editor.iframeSource==''}" ng-click="editor.export()"><i class="fa fa-dot-circle-o"></i></a></li-->
 		<li><a class="topcoat-button--large--cta" ng-class="{'button--disabled':editor.iframeSource==''}" ng-href="{{editor.iframeSource}}" download="result.html"><i class="fa fa-sign-out"></i></a></li>
 	</ul>
@@ -61,7 +62,7 @@
 						<option value="">-- choose framework --</option>
 					</select>
 					<label class="editor-panel--config__divider">Script loading</label>
-					<select class="editor-select" ng-model="bodyEditor.currentProjectService.project.options.js_wrap_mode" ng-options="label for (label , value) in editor.js_wrap_modes">
+					<select class="editor-select" ng-model="bodyEditor.currentProjectService.project.options.js_wrap_mode" ng-options="k as k for (k,v) in editor.js_wrap_modes">
 						<option value="">-- choose js wrap mode --</option>
 					</select>
 				</div>
@@ -174,8 +175,7 @@
 
 
 
-
-<!-- Le javascript -->
+<script src="https://www.dropbox.com/static/api/dropbox-datastores-1.1-latest.js" type="text/javascript"></script>
 <script type="application/javascript" src="js/typescript.min.js"></script>
 <script type="application/javascript" src="js/stylus.min.js"></script>
 <script type="application/javascript" src="bower_components/ace-builds/src-min-noconflict/ace.js"></script>
@@ -183,7 +183,7 @@
 <script type="application/javascript" src="bower_components/angular/angular.min.js"></script>
 <script type="application/javascript" src="bower_components/angular-ui-ace/ui-ace.js"></script>
 <script type="application/javascript" src="js/ui-layout.js"></script>
-<script type="application/javascript" src="js/app.js"></script>
+<script type="application/javascript" src="js/app.min.js"></script>
 
 
 

@@ -591,7 +591,7 @@ declare module process {
     }
     function exit(exitCode?: number): any;
 }
-declare var Buffer: new(str: string, encoding?: string) => any;
+declare var Buffer: new (str: string, encoding?: string) => any;
 declare module TypeScript {
     var nodeMakeDirectoryTime: number;
     var nodeCreateBufferTime: number;

@@ -7,24 +7,19 @@
 
 
 //grunt-start
-/// <reference path="views/BodyWrapTemplateView.html.ts" />
-/// <reference path="views/DomReadyTemplateView.html.ts" />
-/// <reference path="views/HeadWrapTemplateView.html.ts" />
-/// <reference path="views/LoadTemplateView.html.ts" />
-/// <reference path="views/PreviewView.html.ts" />
+/// <reference path="services/DropboxService.ts" />
+/// <reference path="typings/dropbox.d.ts" />
 //grunt-end
 
-
+/// <reference path="libs/Hanson.ts" />
 
 /// <reference path="$di.ts" />
 /// <reference path="$di.app.ts" />
 
-/// <reference path="lib/typescript-serializer.ts" />
+/// <reference path="libs/typescript-serializer.ts" />
 
 /// <reference path="models/PlaygroundProject.ts" />
-/// <reference path="models/RenderDevices.ts" />
 
-/// <reference path="views/PreviewView.html.ts" />
 
 /// <reference path="services/ResourceLoaderService.ts" />
 /// <reference path="services/ConfigService.ts" />
