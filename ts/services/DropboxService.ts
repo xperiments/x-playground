@@ -13,7 +13,7 @@ module io.xperiments.csseditor.services {
             this._dropBox = new Dropbox.Client({ key: 'mize1oifvzi72sd' });
             this._dropBox.authenticate({ interactive: false }, (error: Dropbox.ApiError) => { this._onAuthFinish(error); });
             if (this._dropBox.isAuthenticated()) {
-                alert('YES');
+                // alert('YES');
                 this._isAuthenticated = true;
             }
         }

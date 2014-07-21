@@ -2,6 +2,7 @@
 module io.xperiments.csseditor.controllers {
     import HTMLRendererService = io.xperiments.csseditor.services.HTMLRendererService;
     import CurrentProjectService = io.xperiments.csseditor.services.CurrentProjectService;
+    import GistService = io.xperiments.csseditor.services.GistService;
     import DropboxService = io.xperiments.csseditor.services.DropboxService;
     import ConfigService = io.xperiments.csseditor.services.ConfigService;
     import IJSONConfig = io.xperiments.csseditor.services.IJSONConfig;
@@ -25,7 +26,8 @@ module io.xperiments.csseditor.controllers {
             $di.$app.HTMLRendererService,
             $di.$app.CurrentProjectService,
             $di.$app.ConfigService,
-            $di.$app.DropboxService
+            $di.$app.DropboxService,
+            $di.$app.GistService
         ];
         constructor(
             private $rootScope: ng.IRootScopeService
@@ -36,6 +38,7 @@ module io.xperiments.csseditor.controllers {
             , private currentProjectService: CurrentProjectService
             , private configService: ConfigService
             , private dropboxService: DropboxService
+            , private gistService: GistService
             ) {
             this.currentProject = currentProjectService.project;
             this.configService.load().then((data: IJSONConfig) => {
@@ -50,6 +53,12 @@ module io.xperiments.csseditor.controllers {
 
         dropboxConnect() {
             this.dropboxService.authenticate();
+        }
+        gistPublish() {
+            this.gistService.publish();
+        }
+        loadGist(raw_url: string) {
+            this.gistService.loadGist(raw_url);
         }
         run() {
             this.HTMLRendererService.render(this.currentProject).then((result: string) => {

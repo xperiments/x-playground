@@ -1,41 +1,3 @@
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (services) {
-                var DropboxService = (function () {
-                    function DropboxService() {
-                        var _this = this;
-                        this._isAuthenticated = false;
-                        this._dropBox = new Dropbox.Client({ key: 'mize1oifvzi72sd' });
-                        this._dropBox.authenticate({ interactive: false }, function (error) {
-                            _this._onAuthFinish(error);
-                        });
-                        if (this._dropBox.isAuthenticated()) {
-                            alert('YES');
-                            this._isAuthenticated = true;
-                        }
-                    }
-                    DropboxService.prototype.authenticate = function () {
-                        this._dropBox.authenticate();
-                    };
-
-                    DropboxService.prototype._onAuthFinish = function (error) {
-                        if (error) {
-                            console.log(error);
-                        }
-                        ;
-                    };
-                    return DropboxService;
-                })();
-                services.DropboxService = DropboxService;
-            })(csseditor.services || (csseditor.services = {}));
-            var services = csseditor.services;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
 var Hanson;
 (function (Hanson) {
     function toJSON(input) {
@@ -207,6 +169,7 @@ var $di;
         $app.ConfigService = null;
         $app.ResourceLoaderService = null;
         $app.DropboxService = null;
+        $app.GistService = null;
         return $app;
     })();
     $di.$app = $app;
@@ -413,6 +376,44 @@ var io;
     })(io.xperiments || (io.xperiments = {}));
     var xperiments = io.xperiments;
 })(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (services) {
+                var ConfigService = (function () {
+                    function ConfigService($http, $q) {
+                        this.$http = $http;
+                        this.$q = $q;
+                    }
+                    ConfigService.prototype.load = function () {
+                        var _this = this;
+                        return this.$http.get('/config/config.hson', {
+                            transformResponse: [function (data, headersGetter) {
+                                    return JSON.parse(Hanson.toJSON(data));
+                                }]
+                        }).then(function (data) {
+                            _this.endPoints = data.data.endPoints;
+                            _this.frameworks = data.data.frameworks;
+                            _this.js_wrap_map = data.data.js_wrap_map;
+
+                            return { frameworks: data.data.frameworks, js_wrap_map: data.data.js_wrap_map };
+                        });
+                    };
+                    ConfigService.$inject = [
+                        $di.$ng.$http,
+                        $di.$ng.$q
+                    ];
+                    return ConfigService;
+                })();
+                services.ConfigService = ConfigService;
+            })(csseditor.services || (csseditor.services = {}));
+            var services = csseditor.services;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -451,7 +452,20 @@ var io;
                         this.cssRenderMode = null;
                         this.jsRenderMode = null;
                         this.js_wrap_mode = null;
+                        this.framework = null;
                     }
+                    PlaygroundProjectOptionsSerializer.prototype.set_framework = function (framework) {
+                        return framework.label;
+                    };
+                    PlaygroundProjectOptionsSerializer.prototype.get_framework = function (label) {
+                        console.log('busco ' + label);
+
+                        var configService = angular.element(document.body).injector().get($di.$app.ConfigService);
+                        var framework = configService.frameworks.filter(function (framework) {
+                            return framework.label === label;
+                        });
+                        return framework[0];
+                    };
                     return PlaygroundProjectOptionsSerializer;
                 })();
                 models.PlaygroundProjectOptionsSerializer = PlaygroundProjectOptionsSerializer;
@@ -462,6 +476,9 @@ var io;
                         this.css = '';
                         this.js = '';
                         this.body = '';
+                        this.cssFiles = null;
+                        this.jsFiles = null;
+                        this.options = null;
                     }
                     return PlaygroundProject;
                 })(Serializable);
@@ -472,6 +489,9 @@ var io;
                         this.css = null;
                         this.js = null;
                         this.body = null;
+                        this.cssFiles = null;
+                        this.jsFiles = null;
+                        this.options = null;
                     }
                     return PlaygroundProjectSerializer;
                 })();
@@ -522,42 +542,6 @@ var io;
                     return ResourceLoaderService;
                 })();
                 services.ResourceLoaderService = ResourceLoaderService;
-            })(csseditor.services || (csseditor.services = {}));
-            var services = csseditor.services;
-        })(xperiments.csseditor || (xperiments.csseditor = {}));
-        var csseditor = xperiments.csseditor;
-    })(io.xperiments || (io.xperiments = {}));
-    var xperiments = io.xperiments;
-})(io || (io = {}));
-var io;
-(function (io) {
-    (function (xperiments) {
-        (function (csseditor) {
-            (function (services) {
-                var ConfigService = (function () {
-                    function ConfigService($http, $q) {
-                        this.$http = $http;
-                        this.$q = $q;
-                    }
-                    ConfigService.prototype.load = function () {
-                        var _this = this;
-                        return this.$http.get('/config/config.hson', {
-                            transformResponse: [function (data, headersGetter) {
-                                    return JSON.parse(Hanson.toJSON(data));
-                                }]
-                        }).then(function (data) {
-                            _this.frameworks = data.data.frameworks;
-                            _this.js_wrap_map = data.data.js_wrap_map;
-                            return { frameworks: data.data.frameworks, js_wrap_map: data.data.js_wrap_map };
-                        });
-                    };
-                    ConfigService.$inject = [
-                        $di.$ng.$http,
-                        $di.$ng.$q
-                    ];
-                    return ConfigService;
-                })();
-                services.ConfigService = ConfigService;
             })(csseditor.services || (csseditor.services = {}));
             var services = csseditor.services;
         })(xperiments.csseditor || (xperiments.csseditor = {}));
@@ -762,9 +746,96 @@ var io;
 (function (io) {
     (function (xperiments) {
         (function (csseditor) {
+            (function (services) {
+                var DropboxService = (function () {
+                    function DropboxService() {
+                        var _this = this;
+                        this._isAuthenticated = false;
+                        this._dropBox = new Dropbox.Client({ key: 'mize1oifvzi72sd' });
+                        this._dropBox.authenticate({ interactive: false }, function (error) {
+                            _this._onAuthFinish(error);
+                        });
+                        if (this._dropBox.isAuthenticated()) {
+                            this._isAuthenticated = true;
+                        }
+                    }
+                    DropboxService.prototype.authenticate = function () {
+                        this._dropBox.authenticate();
+                    };
+
+                    DropboxService.prototype._onAuthFinish = function (error) {
+                        if (error) {
+                            console.log(error);
+                        }
+                        ;
+                    };
+                    return DropboxService;
+                })();
+                services.DropboxService = DropboxService;
+            })(csseditor.services || (csseditor.services = {}));
+            var services = csseditor.services;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
+            (function (services) {
+                var GistService = (function () {
+                    function GistService($http, configService, currentProjectService) {
+                        this.$http = $http;
+                        this.configService = configService;
+                        this.currentProjectService = currentProjectService;
+                    }
+                    GistService.prototype.publish = function () {
+                        var playgroundProject = this.currentProjectService.project;
+                        var serialized = playgroundProject.stringify(false);
+                        var data = {
+                            description: 'x-playground anonymous gist save test',
+                            public: true,
+                            files: {
+                                'x-playground.xpl': {
+                                    content: serialized
+                                }
+                            }
+                        };
+                        this.$http.post(this.configService.endPoints['gist'], data).then(function (data) {
+                            console.log(data);
+                        });
+                    };
+                    GistService.prototype.loadGist = function (raw_url) {
+                        var _this = this;
+                        this.$http.jsonp('https://api.github.com/gists/' + raw_url + '?callback=JSON_CALLBACK').success(function (data) {
+                            alert(1);
+                            console.log(typeof data.data.files['x-playground.xpl'].content);
+                            _this.currentProjectService.project.parse(data.data.files['x-playground.xpl'].content);
+                        });
+                    };
+                    GistService.$inject = [
+                        $di.$ng.$http,
+                        $di.$app.ConfigService,
+                        $di.$app.CurrentProjectService
+                    ];
+                    return GistService;
+                })();
+                services.GistService = GistService;
+            })(csseditor.services || (csseditor.services = {}));
+            var services = csseditor.services;
+        })(xperiments.csseditor || (xperiments.csseditor = {}));
+        var csseditor = xperiments.csseditor;
+    })(io.xperiments || (io.xperiments = {}));
+    var xperiments = io.xperiments;
+})(io || (io = {}));
+var io;
+(function (io) {
+    (function (xperiments) {
+        (function (csseditor) {
             (function (controllers) {
                 var EditorController = (function () {
-                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, configService, dropboxService) {
+                    function EditorController($rootScope, $sce, $interpolate, $q, HTMLRendererService, currentProjectService, configService, dropboxService, gistService) {
                         var _this = this;
                         this.$rootScope = $rootScope;
                         this.$sce = $sce;
@@ -774,6 +845,7 @@ var io;
                         this.currentProjectService = currentProjectService;
                         this.configService = configService;
                         this.dropboxService = dropboxService;
+                        this.gistService = gistService;
                         this.iframeSource = '';
                         this.compiledResult = '';
                         this.currentProject = currentProjectService.project;
@@ -785,6 +857,12 @@ var io;
                     }
                     EditorController.prototype.dropboxConnect = function () {
                         this.dropboxService.authenticate();
+                    };
+                    EditorController.prototype.gistPublish = function () {
+                        this.gistService.publish();
+                    };
+                    EditorController.prototype.loadGist = function (raw_url) {
+                        this.gistService.loadGist(raw_url);
                     };
                     EditorController.prototype.run = function () {
                         var _this = this;
@@ -802,7 +880,8 @@ var io;
                         $di.$app.HTMLRendererService,
                         $di.$app.CurrentProjectService,
                         $di.$app.ConfigService,
-                        $di.$app.DropboxService
+                        $di.$app.DropboxService,
+                        $di.$app.GistService
                     ];
                     return EditorController;
                 })();

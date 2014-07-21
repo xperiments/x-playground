@@ -23,6 +23,7 @@ module io.xperiments.csseditor.services {
     export interface IJSONConfig {
         js_wrap_map: IJsWrapMap;
         frameworks: IFramework[];
+        endPoints: { [key: string]: string }
     }
 
     export class ConfigService {
@@ -32,6 +33,7 @@ module io.xperiments.csseditor.services {
         ];
         frameworks: IFramework[];
         js_wrap_map: IJsWrapMap;
+        endPoints: { [key: string]: string };
         constructor(
             private $http: ng.IHttpService
             , private $q: ng.IQService
@@ -44,8 +46,10 @@ module io.xperiments.csseditor.services {
 
             }).then((data: ng.IHttpPromiseCallbackArg<IJSONConfig>) => {
 
+                    this.endPoints = data.data.endPoints;
                     this.frameworks = data.data.frameworks;
                     this.js_wrap_map = data.data.js_wrap_map;
+
                     return { frameworks: data.data.frameworks, js_wrap_map: data.data.js_wrap_map };
                 });
         }

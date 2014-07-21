@@ -11,6 +11,7 @@ module $di {
         static ConfigService: string = null;
         static ResourceLoaderService: string = null;
         static DropboxService: string = null;
+        static GistService: string = null;
     }
     $di.initStaticClass($app);
 }

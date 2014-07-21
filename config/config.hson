@@ -742,7 +742,11 @@
 			"label": "Phaser 2.0.5",
 			"group": "Standalone"
 		}
-	]
+	],
+	"endPoints":{
+
+	    "gist":"https://api.github.com/gists"
+	}
 }
 
 
