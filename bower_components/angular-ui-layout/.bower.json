@@ -1,0 +1,18 @@
+{
+  "name": "angular-ui-layout",
+  "main": "ui-layout.js",
+  "dependencies": {
+    "angular": "~1.2.1"
+  },
+  "homepage": "https://github.com/angular-ui/ui-layout",
+  "_release": "f0deccf829",
+  "_resolution": {
+    "type": "branch",
+    "branch": "bower",
+    "commit": "f0deccf82962c1136757310bb84dbd792cbd1bc6"
+  },
+  "_source": "git://github.com/angular-ui/ui-layout.git",
+  "_target": "bower",
+  "_originalSource": "angular-ui-layout",
+  "_direct": true
+}

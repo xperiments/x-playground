@@ -1,0 +1,259 @@
+html,body{
+	margin:0;
+	padding:0;
+	height: 100%;
+	overflow: hidden;
+	font-weight: 100;
+}
+
+body.light {
+	background: #F4F4F4;
+}
+body.dark {
+	color: #F0F1F1;
+	background: #4A4D4E;
+}
+body.light {
+	color: #181919;
+}
+.ace_editor{
+	margin: 0;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width:100%;
+	height: calc( 100% - 30px );
+}
+
+.stretch{
+	overflow: hidden;
+}
+.editor-container
+{
+	background-color: #000;
+}
+.editor-container--panel
+{
+	margin-top:4px;
+	color:#CCC;
+}
+
+.editor-container--panel header
+{
+	width: 100%;
+	height: 30px;
+	background-color: #666;
+	font-family: helvetica, arial, sans-serif;
+	font-size: 14px;
+	line-height: 30px;
+	border-bottom: 1px solid #444;
+	padding-left: 5px;
+}
+
+.editor-container--panel header .topcoat-button,
+.editor-container--panel header .topcoat-button-bar
+{
+	margin-top:3px;
+}
+.editor-container--panel header .topcoat-button-bar
+{
+	display: inline-block;
+}
+
+.editor-container--panel:first-child
+{
+	margin-top:0px;
+}
+.editor-panel--context
+{
+	position: absolute;
+	right: 10px;
+	top:0px;
+}
+.editor-panel--config
+{
+	z-index: 100;
+	position: absolute;
+	top: 31px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width:100%;
+	height: calc(100% - 30px);
+	background-color: #4b4d4e;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	font-size: 14px;
+	color:#AAA;
+	box-sizing: border-box;
+	padding:0px 20px 20px 20px;
+
+}
+.editor-panel--config label
+{
+	display: block;
+	margin-bottom: 5px;
+}
+
+.editor-panel--config label.editor-panel--config__divider
+{
+	display: block;
+	padding-bottom: 3px;
+	margin-bottom: 13px;
+	border-bottom: 1px dotted;
+	margin-top: 20px;
+}
+.editor-container--name
+{
+	font-family: helvetica, arial, sans-serif;
+	font-size: 12px;
+	padding:6px;
+	background-color: #888;
+	color:#000;
+	display: inline;
+	position: absolute;
+	top:0;
+	right: 0;
+	z-index: 500;
+	margin:5px;
+	border-radius: 4px;
+}
+.editor-menu
+{
+	color:#888;
+	width: 100%;
+	height: 40px;
+	background-color: #000;
+	margin: 0;
+	padding: 0;
+}
+.editor-menu--ul
+{
+	height: 40px;
+	list-style-type: none;
+	margin: 0px;
+	padding:0px;
+	margin-left: 5px;
+}
+.editor-menu--ul li {
+	cursor: pointer;
+	display: inline-block;
+	padding: 5px 0px 0px 0px;
+	line-height: 40px;
+}
+.editor-preview
+{
+	background-color: transparent;
+	background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
+	height:100%;
+	background-size:50px 50px;
+}
+
+.editor-preview--iframe
+{
+	border:0px;
+	width: 100%;
+	height: 100%;
+	outline: 1px solid #000;
+	background-color: #FFF;
+}
+.editor-preview--iframe.desktop {
+
+	width: 960px;
+	height: 600px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -480px;
+	margin-top: -300px;
+}
+.editor-preview--iframe.tablet {
+
+	width: 768px;
+	height: 1024px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -384px;
+	margin-top: -512px;
+}
+.editor-preview--iframe.mobile {
+
+	width: 320px;
+	height: 480px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -160px;
+	margin-top: -240px;
+}
+
+.editor-preview--responsive
+{
+	position: absolute;
+	top:20px;
+	right: 20px;
+	overflow: hidden;
+	width:180px;
+
+
+}
+.editor-properties
+{
+	margin:20px;
+	box-sizing: border-box;
+}
+
+
+.editor-properties--numeric-input
+{
+	width: 50px;
+}
+
+i{
+	cursor: pointer;
+}
+
+
+.editor-select
+{
+
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	background: #595B5B;
+	background-image: none;
+	box-shadow: 0 0 0 1px #303233;
+	border: none;
+	border-top: 2px solid #666767;
+	color: #FFF;
+	text-shadow: 0 -1px 0 #000;
+	overflow: hidden;
+	font-size: 12px;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
+	-webkit-appearance: none;
+	-moz-appearance: button;
+	padding: 3px 20px 4px 8px;
+
+}
+.editor-select > option
+{
+	font-size: 10px;
+}
+
+input:focus {
+	outline: 0;
+	border-color: #333434 !important;
+	box-shadow: none !important;
+}
+
+.no-events
+{
+	pointer-events:none;
+}
+
+
